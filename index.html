@@ -1178,47 +1178,24 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// --- INITIALISATION SUPABASE ---
+const supabaseUrl = 'https://psdy....supabase.co'; // TA VALEUR SUPABASE_URL
+const supabaseKey = 'eyJhb....'; // TA VALEUR SUPABASE_ANON_KEY
+const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function saveToCloud(type, data) {
+    try {
+        await _supabase
+            .from('wf_senart_data')
+            .upsert({ type: type, content: data }, { onConflict: 'type' });
+    } catch (e) {
+        console.error("Erreur de liaison :", e);
+    }
+}
+
 // ============================================================
 // STATE
 // ============================================================
-
-// Initialisation Supabase (Utilise les clés trouvées dans Vercel > Settings > Environment Variables)
-const supabaseUrl = 'https://TON_PROJET.supabase.co';
-const supabaseKey = 'TA_CLE_ANON';
-const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-async function saveData() {
-  const data = {
-    date: new Date().toISOString(),
-    equipe: document.getElementById('equipe')?.value || '',
-    machine: document.getElementById('machine')?.value || '',
-    // ... récupère tous tes champs ici
-  };
-
-  const { error } = await _supabase
-    .from('productions')
-    .insert([data]);
-
-  if (error) {
-    alert('Erreur de sauvegarde : ' + error.message);
-  } else {
-    alert('Enregistré sur le serveur !');
-    location.reload();
-  }
-}
-
-async function loadHistory() {
-  const { data, error } = await _supabase
-    .from('productions')
-    .select('*');
-
-  if (error) {
-    alert('Erreur de chargement : ' + error.message);
-    return [];
-  }
-
-  return data;
-}
 
 const defaultConfig = {
   pop: { "Best sellers": 11, "Très populaire": 9, "Populaire": 5, "Peu populaire": 2 },
@@ -1299,6 +1276,8 @@ function loadState() {
 
 function saveState(cfg) {
   localStorage.setItem('wf-senart-state', JSON.stringify(cfg));
+  // On ajoute cette ligne pour envoyer au Cloud
+  saveToCloud('config', cfg);
   localStorage.setItem('wf-pertes-matin', JSON.stringify(pertesMatin));
   localStorage.setItem('wf-pertes-apm', JSON.stringify(pertesApm));
 }
