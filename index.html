@@ -17,6 +17,7 @@
     });
   }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1180,6 +1181,45 @@
 // ============================================================
 // STATE
 // ============================================================
+
+// Initialisation Supabase (Utilise les clés trouvées dans Vercel > Settings > Environment Variables)
+const supabaseUrl = 'https://TON_PROJET.supabase.co';
+const supabaseKey = 'TA_CLE_ANON';
+const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+async function saveData() {
+  const data = {
+    date: new Date().toISOString(),
+    equipe: document.getElementById('equipe')?.value || '',
+    machine: document.getElementById('machine')?.value || '',
+    // ... récupère tous tes champs ici
+  };
+
+  const { error } = await _supabase
+    .from('productions')
+    .insert([data]);
+
+  if (error) {
+    alert('Erreur de sauvegarde : ' + error.message);
+  } else {
+    alert('Enregistré sur le serveur !');
+    location.reload();
+  }
+}
+
+async function loadHistory() {
+  const { data, error } = await _supabase
+    .from('productions')
+    .select('*');
+
+  if (error) {
+    alert('Erreur de chargement : ' + error.message);
+    return [];
+  }
+
+  return data;
+}
+
 const defaultConfig = {
   pop: { "Best sellers": 11, "Très populaire": 9, "Populaire": 5, "Peu populaire": 2 },
   ratios: {
