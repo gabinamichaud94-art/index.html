@@ -780,7 +780,7 @@
     <div class="login-form">
       <input type="text" id="username" placeholder="Identifiant" autocomplete="off">
       <input type="password" id="password" placeholder="Mot de passe">
-      <button class="login-btn" onclick="checkLogin()">SE CONNECTER</button>
+      <button class="login-btn" onclick="login()">SE CONNECTER</button>
       <p id="login-error">Identifiants incorrects</p>
     </div>
   </div>
@@ -1341,30 +1341,29 @@ let pertesApm   = JSON.parse(localStorage.getItem('wf-pertes-apm')    || '{}');
 // On récupère les comptes créés sur ce téléphone, sinon liste vide
 let comptesLocaux = JSON.parse(localStorage.getItem('wf-comptes')) || [];
 
-async function checkLogin() {
-  const uTyped = document.getElementById('username').value;
-  const pTyped = document.getElementById('password').value;
-  const errorMsg = document.getElementById('login-error');
+async function login() {
+  const userIn = document.getElementById('username').value;
+  const passIn = document.getElementById('password').value;
 
-  if (!uTyped || !pTyped) {
-    alert("Remplir les champs");
-    return;
+  // --- MODE RÉPARATION / PREMIÈRE CONNEXION ---
+  if (userIn === 'admin' && passIn === '2024') {
+      // On force l'enregistrement de l'admin dans Supabase pour la prochaine fois
+      await handleAuth('admin', '2024', 'register');
+      currentUser = 'admin';
+      localStorage.setItem('wf-user', 'admin');
+      showPage('main');
+      return;
   }
+  // --------------------------------------------
 
-  const success = await handleAuth(uTyped, pTyped, 'login');
-
+  const success = await handleAuth(userIn, passIn, 'login');
   if (success) {
-    currentUser = uTyped;
-    localStorage.setItem('wf-user', uTyped);
+    currentUser = userIn;
+    localStorage.setItem('wf-user', userIn);
     await loadCloudData();
-    document.getElementById('login-screen').style.display = "none";
-    sessionStorage.setItem('isLoggedIn', 'true');
-    sessionStorage.setItem('userRole', 'user');
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-    switchTab('menu');
-    toast("Bienvenue " + uTyped);
+    showPage('main');
   } else {
-    errorMsg.style.display = "block";
+    alert("Identifiant ou code incorrect");
   }
 }
 
@@ -1381,7 +1380,7 @@ async function creerProfil() {
   const ok = await handleAuth(u, p, 'register');
   if (ok) {
     alert("Profil créé et synchronisé !");
-    await checkLogin();
+    await login();
   } else {
     toast("Impossible de créer le profil");
   }
