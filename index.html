@@ -1179,8 +1179,8 @@
 
 <script>
 // --- INITIALISATION SUPABASE ---
-const supabaseUrl = 'https://psdy....supabase.co'; // TA VALEUR SUPABASE_URL
-const supabaseKey = 'eyJhb....'; // TA VALEUR SUPABASE_ANON_KEY
+const supabaseUrl = 'https://jhpxeopddsgkoejedfev.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocHhlb3BkZHNna29lamVkZmV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzk1NjEsImV4cCI6MjA5Mjg1NTU2MX0.YT3xk2b-cMqKrd4LYOETrwEtTyW-ZiapHeeR55Thx7Q';
 const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 async function saveToCloud(type, data) {
@@ -1345,23 +1345,20 @@ async function login() {
   const userIn = document.getElementById('username').value;
   const passIn = document.getElementById('password').value;
 
-  // --- MODE RÉPARATION / PREMIÈRE CONNEXION ---
+  // Secours admin
   if (userIn === 'admin' && passIn === '2024') {
-      // On force l'enregistrement de l'admin dans Supabase pour la prochaine fois
       await handleAuth('admin', '2024', 'register');
       currentUser = 'admin';
-      localStorage.setItem('wf-user', 'admin');
       showPage('main');
+      await loadCloudData();
       return;
   }
-  // --------------------------------------------
 
   const success = await handleAuth(userIn, passIn, 'login');
   if (success) {
     currentUser = userIn;
-    localStorage.setItem('wf-user', userIn);
-    await loadCloudData();
     showPage('main');
+    await loadCloudData();
   } else {
     alert("Identifiant ou code incorrect");
   }
@@ -2232,7 +2229,6 @@ function toast(msg) {
 // INIT
 // ============================================================
 compute();
-window.addEventListener('load', loadCloudData);
 </script>
 </body>
 </html>
