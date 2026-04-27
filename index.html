@@ -1193,6 +1193,47 @@ async function saveToCloud(type, data) {
     }
 }
 
+let currentUser = null;
+
+// --- FONCTIONS DE SYNCHRONISATION ---
+
+async function handleAuth(username, password, mode = 'login') {
+    if (mode === 'register') {
+        const { error } = await _supabase
+            .from('wf_senart_data')
+            .upsert({ type: 'user_' + username, content: { username, password } });
+        return !error;
+    } else {
+        const { data, error } = await _supabase
+            .from('wf_senart_data')
+            .select('content')
+            .eq('type', 'user_' + username)
+            .single();
+        if (error || !data) return false;
+        return data.content.password === password;
+    }
+}
+
+async function loadCloudData() {
+    const { data, error } = await _supabase
+        .from('wf_senart_data')
+        .select('content')
+        .eq('type', 'global_config')
+        .single();
+    if (error) {
+        console.error('Erreur de chargement Cloud :', error);
+        return;
+    }
+    if (data) {
+        cfg = data.content;
+        renderCarte();
+        compute();
+        console.log("Données Cloud récupérées !");
+    }
+}
+
+window.addEventListener('load', loadCloudData);
+
 // ============================================================
 // STATE
 // ============================================================
@@ -1274,10 +1315,13 @@ function loadState() {
   } catch(e) { return structuredClone(defaultConfig); }
 }
 
-function saveState(cfg) {
+async function saveState(cfg) {
   localStorage.setItem('wf-senart-state', JSON.stringify(cfg));
-  // On ajoute cette ligne pour envoyer au Cloud
-  saveToCloud('config', cfg);
+  // ENVOIE AU CLOUD
+  const { error } = await _supabase
+    .from('wf_senart_data')
+    .upsert({ type: 'global_config', content: cfg }, { onConflict: 'type' });
+  if (error) console.error("Erreur de synchro :", error);
   localStorage.setItem('wf-pertes-matin', JSON.stringify(pertesMatin));
   localStorage.setItem('wf-pertes-apm', JSON.stringify(pertesApm));
 }
@@ -1297,38 +1341,27 @@ let pertesApm   = JSON.parse(localStorage.getItem('wf-pertes-apm')    || '{}');
 // On récupère les comptes créés sur ce téléphone, sinon liste vide
 let comptesLocaux = JSON.parse(localStorage.getItem('wf-comptes')) || [];
 
-function checkLogin() {
+async function checkLogin() {
   const uTyped = document.getElementById('username').value;
   const pTyped = document.getElementById('password').value;
   const errorMsg = document.getElementById('login-error');
 
-  // Le compte Admin "Maître" (toujours le même)
-  const adminMaître = { user: "admin", pass: "ADMIN77", role: "admin" };
-  
-  // 1. On cherche si c'est l'admin
-  let found = (uTyped === adminMaître.user && pTyped === adminMaître.pass) ? adminMaître : null;
-  
-  // 2. Si c'est pas l'admin, on cherche dans les comptes créés localement
-  if (!found) {
-    found = comptesLocaux.find(c => c.user === uTyped && c.pass === pTyped);
+  if (!uTyped || !pTyped) {
+    alert("Remplir les champs");
+    return;
   }
 
-  if (found) {
+  const success = await handleAuth(uTyped, pTyped, 'login');
+
+  if (success) {
+    currentUser = uTyped;
+    localStorage.setItem('wf-user', uTyped);
+    await loadCloudData();
     document.getElementById('login-screen').style.display = "none";
     sessionStorage.setItem('isLoggedIn', 'true');
-    sessionStorage.setItem('userRole', found.role);
-
-    // SI ADMIN : On affiche les menus protégés
-    if(found.role === 'admin') {
-      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
-      const navGestion = document.getElementById('nav-gestion');
-      if(navGestion) navGestion.style.display = 'flex';
-      renderListeProfils(); // On prépare la liste des employés
-    } else {
-      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-    }
-
-    switchTab('menu'); // Redirige vers le dashboard
+    sessionStorage.setItem('userRole', 'user');
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    switchTab('menu');
     toast("Bienvenue " + uTyped);
   } else {
     errorMsg.style.display = "block";
@@ -1336,7 +1369,7 @@ function checkLogin() {
 }
 
 // Fonction pour créer un profil et l'enregistrer
-function creerProfil() {
+async function creerProfil() {
   const u = document.getElementById('new-user').value.trim();
   const p = document.getElementById('new-pass').value.trim();
 
@@ -1345,17 +1378,13 @@ function creerProfil() {
     return;
   }
 
-  // On ajoute à notre liste locale
-  comptesLocaux.push({ user: u, pass: p, role: 'user' });
-  
-  // On sauvegarde dans la mémoire du téléphone
-  localStorage.setItem('wf-comptes', JSON.stringify(comptesLocaux));
-  
-  // On vide les champs et on rafraîchit la liste
-  document.getElementById('new-user').value = "";
-  document.getElementById('new-pass').value = "";
-  renderListeProfils();
-  toast("Profil " + u + " créé ✓");
+  const ok = await handleAuth(u, p, 'register');
+  if (ok) {
+    alert("Profil créé et synchronisé !");
+    await checkLogin();
+  } else {
+    toast("Impossible de créer le profil");
+  }
 }
 
 // Fonction pour afficher la liste des profils avec un bouton supprimer
@@ -1540,6 +1569,7 @@ function compute() {
   renderPMRows();
   updateSuivi();
   renderPertes();
+  saveState(cfg);
 }
 
 function renderMatinRows() {
@@ -2203,6 +2233,7 @@ function toast(msg) {
 // INIT
 // ============================================================
 compute();
+window.addEventListener('load', loadCloudData);
 </script>
 </body>
 </html>
