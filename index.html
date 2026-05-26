@@ -1,0 +1,4044 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WF Sénart</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-weCEb-app-title" content="WF Prod">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+    });
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'SW_UPDATED') window.location.reload();
+    });
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F2F0EB;
+    --surface3: #E8E5DF;
+    --accent: #E8222A;
+    --accent2: #ff6b35;
+    --accent3: #ffa552;
+    --accent-deep: #B71C1C;
+    --accent-soft: rgba(232, 34, 42, 0.08);
+    --accent-glow: rgba(232, 34, 42, 0.18);
+    --accent-gradient: linear-gradient(135deg, #E8222A 0%, #B71C1C 100%);
+    --text: #111111;
+    --text-muted: #777777;
+    --border: rgba(0,0,0,0.09);
+    --border-light: rgba(0,0,0,0.05);
+    --success: #16a34a;
+    --danger: #dc2626;
+    --info: #4f46e5;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 15px;
+  }
+
+
+  .section-title, .login-container h1, .menu-label, .stat-val {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    text-transform: none;
+  }
+
+  header {
+    background: #FFFFFF;
+    border-bottom: 2px solid var(--accent);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .logo img {
+    height: 36px;
+    width: auto;
+    display: block;
+  }
+
+  .logo-badge {
+    display: none;
+    background: var(--accent);
+    color: #fff;
+    font-family:'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 10px 4px 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all .15s;
+    font-family:'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .nav-btn .nav-icon { font-size: 18px; line-height:1; }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn.active .nav-icon { filter: drop-shadow(0 0 4px rgba(192,57,43,.6)); }
+
+  main {
+    padding: 16px 14px;
+    padding-bottom: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .page { display:none; animation: fadeIn .25s ease; }
+  .page.active { display:block; }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+  .section-header { margin-bottom: 16px; }
+
+  .section-title {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height:1;
+  }
+
+  .section-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    font-family:'Space Mono', monospace;
+    letter-spacing: .5px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .card-title {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: none;
+  }
+
+  .card-title svg { flex-shrink: 0; }
+
+  .card-title .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .session-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .session-selector {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    grid-column: span 2;
+  }
+
+  .session-selector.half { grid-column: span 1; }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 10px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 30px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    font-family:'Space Mono', monospace;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: 3px;
+  }
+
+  label {
+    font-size: 10px;
+    font-family:'Space Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  input[type="number"][inputmode="numeric"], select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family:'Space Mono', monospace;
+    font-size: 16px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+
+  input[type="number"][inputmode="numeric"]:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(192,57,43,.12);
+  }
+
+  select option { background: var(--surface2); }
+
+  .product-row {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--surface3);
+  }
+
+  .product-row:last-child { border-bottom: none; }
+
+  .product-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .product-name {
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .product-name .badge {
+    font-size: 8px;
+    font-family:'Space Mono', monospace;
+    padding: 2px 5px;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+
+  .badge-bs  { background:rgba(192,57,43,.2);  color:var(--accent);  border:1px solid rgba(192,57,43,.3); }
+  .badge-tp  { background:rgba(224,92,75,.2);  color:var(--accent2); border:1px solid rgba(224,92,75,.3); }
+  .badge-pop { background:rgba(232,130,110,.2); color:var(--accent3); border:1px solid rgba(232,130,110,.3); }
+  .badge-pp  { background:rgba(138,138,150,.15); color:var(--text-muted); border:1px solid rgba(138,138,150,.2); }
+  .badge-fr  { background:rgba(8,145,178,.15);  color:#0891b2;        border:1px solid rgba(8,145,178,.3); }
+
+  .product-row-fields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .product-row-fields.two-cols { grid-template-columns: repeat(2, 1fr); }
+
+  .field-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .col-label {
+    font-size: 9px;
+    font-family:'Space Mono', monospace;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 4px;
+  }
+
+  .output-val {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .output-val.green { color: var(--success); }
+  .output-val.blue  { color: var(--info); }
+  .output-val.muted { color: var(--text-muted); }
+  .output-val.orange{ color: var(--accent2); }
+
+  .inline-input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family:'Space Mono', monospace;
+    font-size: 20px;
+    width: 100%;
+    text-align: center;
+    outline: none;
+    padding: 0;
+  }
+
+  .total-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 2px solid var(--accent);
+  }
+
+  .total-row-label {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+  }
+
+  .progress-wrap { margin-top: 8px; }
+
+  .progress-bar {
+    width: 100%;
+    height: 5px;
+    background: var(--surface3);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width .4s ease;
+  }
+
+  .progress-label {
+    font-size: 9px;
+    font-family:'Space Mono', monospace;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .suivi-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 420px; }
+
+  th {
+    font-family:'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--border-light);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--surface3);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  td.num { font-family:'Space Mono', monospace; font-size: 13px; text-align: right; }
+  td.product { font-weight: 600; }
+  tr.highlight td { background: rgba(192,57,43,.06); }
+
+  .pop-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+  .pop-btn {
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    font-family:'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    transition: all .15s;
+    background: var(--surface3);
+    color: var(--text-muted);
+  }
+
+  .pop-btn[data-pop="Best sellers"]    { border-color: var(--accent); }
+  .pop-btn[data-pop="Best sellers"].selected { background:var(--accent); color:#fff; }
+  .pop-btn[data-pop="Très populaire"]  { border-color: var(--accent2); }
+  .pop-btn[data-pop="Très populaire"].selected { background:var(--accent2); color:#fff; }
+  .pop-btn[data-pop="Populaire"]       { border-color: var(--accent3); }
+  .pop-btn[data-pop="Populaire"].selected { background:var(--accent3); color:#111; }
+  .pop-btn[data-pop="Peu populaire"]   { border-color: var(--text-muted); }
+  .pop-btn[data-pop="Peu populaire"].selected { background:var(--text-muted); color:#111; }
+
+  .product-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: border-color .2s;
+  }
+
+  .product-card:hover { border-color: var(--accent); }
+
+  .product-card-name {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .product-card-coef {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 30px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .product-card-coef span {
+    font-size: 12px;
+    font-family:'DM Sans', sans-serif;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .coef-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .coef-day {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+
+  .coef-day .day-name {
+    font-family:'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .coef-day .coef-am {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--info);
+    line-height: 1;
+  }
+
+  .coef-day .coef-pm {
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--accent2);
+    line-height: 1;
+    margin-top: 4px;
+  }
+
+  .coef-day .coef-label {
+    font-size: 8px;
+    font-family:'Space Mono', monospace;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family:'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all .2s;
+    width: 100%;
+  }
+
+  .btn-primary, .login-btn {
+    background: var(--accent-gradient);
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 4px 16px rgba(232, 34, 42, 0.4);
+  }
+
+  .btn-primary:hover, .login-btn:hover {
+    box-shadow: 0 6px 24px rgba(232, 34, 42, 0.55);
+    opacity: 0.95;
+  }
+
+  .btn-ghost {
+    background: var(--surface3);
+    color: var(--text);
+    border: none;
+  }
+
+  .btn-danger { background:rgba(248,113,113,.12); color:var(--danger); border:1px solid rgba(248,113,113,.4); }
+
+  .btn-row { display:flex; gap:8px; margin-top: 8px; }
+  .btn-row .btn { flex:1; }
+
+  .barem-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .barem-card {
+    text-align:center;
+    padding:14px 10px;
+    background:var(--surface2);
+    border-radius:8px;
+    border:1px solid var(--border);
+  }
+
+  .totaux-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+  .totaux-item {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:12px;
+    background:var(--surface2);
+    border-radius:8px;
+  }
+
+  .totaux-item .t-label {
+    font-family:'Space Mono', monospace;
+    font-size:9px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+
+  .totaux-item .t-val {
+    font-family:'Bebas Neue', sans-serif;
+    font-size:32px;
+    line-height:1;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-family:'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    opacity: 0;
+    transition: all .3s;
+    pointer-events: none;
+    z-index: 200;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .sep { height:1px; background:var(--border); margin:16px 0; }
+
+  .lunch-badge {
+    display:inline-block;
+    background:rgba(147,197,253,.12);
+    border:1px solid rgba(147,197,253,.25);
+    color:var(--info);
+    font-family:'Space Mono', monospace;
+    font-size:10px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:5px;
+    letter-spacing:.5px;
+  }
+
+  .cfg-row {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid var(--surface3);
+    gap:12px;
+  }
+
+  .cfg-row:last-child { border-bottom:none; }
+  .cfg-row label { margin-bottom:0; flex:1; }
+  .cfg-row input[type="number"][inputmode="numeric"] { width:90px; flex-shrink:0; text-align:center; }
+
+  .vente-row {
+    display:grid;
+    grid-template-columns:1fr 1fr 80px;
+    align-items:center;
+    padding:10px 0;
+    border-bottom:1px solid var(--surface3);
+    gap:10px;
+  }
+
+  .vente-row:last-child { border-bottom:none; }
+  .vente-row span { font-size:14px; font-weight:500; }
+  .vente-row input[type="number"] { width:100%; text-align:center; }
+  .vente-row input[type="range"] {
+    width:100%;
+    accent-color: var(--accent);
+    cursor:pointer;
+    height:4px;
+  }
+
+  .scroll-hint {
+    font-size:10px;
+    color:var(--text-muted);
+    font-family:'Space Mono',monospace;
+    text-align:right;
+    margin-bottom:6px;
+    letter-spacing:.3px;
+  }
+
+  .dashboard-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .menu-card {
+    flex: 0 1 calc(50% - 0.625rem);
+    min-width: 180px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+    border-radius: 20px;
+    padding: 32px 20px 28px;
+    text-align: center;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .menu-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(232, 34, 42, 0.3);
+    box-shadow: 0 10px 32px rgba(0,0,0,0.10), 0 0 20px rgba(232,34,42,0.10);
+  }
+
+  .menu-card:hover::before { opacity: 1; }
+
+  .menu-card:active {
+    transform: translateY(-1px) scale(0.985);
+  }
+
+  .menu-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--accent-gradient);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(232,34,42,0.45);
+    flex-shrink: 0;
+  }
+
+  .menu-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: #fff;
+  }
+
+  .menu-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--text);
+    letter-spacing: 2.5px;
+    line-height: 1;
+  }
+
+  .menu-desc {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+  }
+
+  #login-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; z-index: 9999; padding: 20px;
+  }
+  .login-container { width: 100%; max-width: 320px; text-align: center; }
+  .login-logo { width: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 10px var(--accent)); }
+  .login-container h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; margin-bottom: 30px; letter-spacing: 2px; }
+  .login-form input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 15px; border-radius: var(--radius);
+    margin-bottom: 15px; font-size: 16px; outline: none;
+  }
+  .login-btn {
+    width: 100%; background: var(--accent); color: white; border: none;
+    padding: 15px; border-radius: var(--radius); font-weight: 600; cursor: pointer;
+  }
+  #login-error { color: var(--danger); font-size: 0.9rem; margin-top: 15px; display: none; }
+
+
+  .cfg-details {
+    margin-bottom: 14px;
+  }
+  .cfg-details > summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .cfg-details > summary::-webkit-details-marker { display: none; }
+  .cfg-details-arrow {
+    transition: transform .2s;
+    display: inline-block;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .cfg-details[open] .cfg-details-arrow { transform: rotate(180deg); }
+  .cfg-details > summary + * { margin-top: 10px; }
+
+  #cfg-save-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .5px;
+    color: var(--success);
+    margin-left: auto;
+    transition: opacity .3s;
+  }
+
+  #offline-badge {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    background: rgba(229,62,62,.12);
+    border: 1px solid rgba(229,62,62,.3);
+    color: var(--danger);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .cfg-day-grid {
+    display: grid;
+    grid-template-columns: 72px 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .cfg-day-grid input { text-align: center; }
+  .cfg-day-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    text-align: center;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 8px;
+  }
+  .cfg-day-header:first-child { text-align: left; }
+
+  /* ===== MENU PRINCIPAL — PREMIUM DARK REDESIGN ===== */
+
+  .menu-page-header {
+    text-align: center;
+    padding: 2rem 0 0;
+    margin-bottom: 0;
+  }
+
+  .menu-main-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    letter-spacing: 7px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 14px;
+  }
+
+  .menu-title-accent {
+    width: 44px;
+    height: 3px;
+    background: var(--accent-gradient);
+    border-radius: 99px;
+    margin: 0 auto;
+  }
+
+  /* Header user/store info chips */
+  .header-info-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 9px;
+    white-space: nowrap;
+    cursor: default;
+  }
+
+  .header-info-chip.clickable { cursor: pointer; }
+  .header-info-chip.clickable:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Logout button */
+  .btn-logout {
+    background: transparent;
+    border: 1px solid rgba(232, 34, 42, 0.45);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 6px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .btn-logout:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* Responsive — menu cards stack on mobile */
+  @media (max-width: 600px) {
+    .menu-card {
+      flex: 1 1 100%;
+      min-width: unset;
+    }
+
+    .menu-main-title { font-size: 36px; letter-spacing: 5px; }
+    .dashboard-grid { gap: 1rem; }
+  }
+</style>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const IC = {
+  production: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>`,
+  suivi:      `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>`,
+  historique: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  config:     `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+  gestion:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  matin:      `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
+  apm:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="2" y1="18" x2="4" y2="18"/><line x1="20" y1="18" x2="22" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/></svg>`,
+  pertes:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  saison:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 22M9.5 11.5C11 13 12 14.5 12 17"/><path d="M22 2s-4 2-6 6-3 7-3 7 4-2 6-6 3-7 3-7z"/></svg>`,
+  odj:        `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  archive:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>`,
+  ventes:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  totaux:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+};
+</script>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-container">
+    <img src="icon-192.png" alt="Logo" class="login-logo">
+    <h1>ACCÈS PRODUCTION</h1>
+    <div class="login-form">
+      <input type="text" id="username" placeholder="Identifiant" autocomplete="off">
+      <input type="password" id="password" placeholder="Mot de passe">
+      <button class="login-btn" onclick="checkLogin()">SE CONNECTER</button>
+      <p id="login-error">Identifiants incorrects</p>
+    </div>
+  </div>
+</div>
+
+<!-- Sélecteur de magasin (admin) -->
+<div id="store-selector-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;">
+  <div style="max-width:480px;margin:0 auto;padding:40px 20px;">
+    <img src="logo-wf.png" alt="Waffle Factory" style="height:40px;display:block;margin:0 auto 32px;">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--text);text-align:center;margin-bottom:6px;">CHOISIR UN MAGASIN</div>
+    <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:32px;">Mode administrateur</div>
+    <div id="store-selector-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase;">Ajouter un magasin</div>
+      <div style="display:flex;gap:10px;">
+        <input type="text" id="new-store-name" placeholder="Nom du magasin" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--surface);">
+        <button onclick="addStore()" class="btn btn-primary" style="white-space:nowrap;">Créer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Écran d'attente (employé sans magasin assigné) -->
+<div id="pending-screen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:32px;text-align:center;">
+  <img src="icon-192.png" alt="Logo" style="height:64px;opacity:.5;">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--text-muted);">COMPTE EN ATTENTE</div>
+  <div style="font-family:'Space Mono',monospace;font-size:12px;color:var(--text-muted);max-width:300px;line-height:1.7;">Votre compte n'est pas encore associé à un magasin.<br>Contactez votre administrateur.</div>
+  <button onclick="logout()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);font-family:'Space Mono',monospace;font-size:10px;padding:8px 16px;border-radius:6px;cursor:pointer;margin-top:8px;">DÉCONNEXION</button>
+</div>
+
+<header>
+  <div class="logo">
+    <img src="logo-wf.png" alt="Waffle Factory">
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div id="header-store" class="header-info-chip clickable" style="display:none;" onclick="showStoreSelectorIfAdmin()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span id="header-store-name"></span>
+    </div>
+    <div id="header-user" class="header-info-chip" style="display:none;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span id="header-username"></span>
+    </div>
+    <div id="rt-status-badge" style="display:none;font-family:'Space Mono',monospace;font-size:10px;color:#fff;padding:3px 8px;border-radius:4px;background:#d97706;">⏳</div>
+    <div id="offline-badge">📵 HORS LIGNE</div>
+    <button onclick="logout()" class="btn-logout">DÉCONNEXION</button>
+  </div>
+</header>
+
+<main>
+
+<div class="page" id="page-menu">
+  <div class="menu-page-header">
+    <h1 class="menu-main-title">MENU PRINCIPAL</h1>
+    <div class="menu-title-accent"></div>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="menu-card" onclick="switchTab('production')">
+      <div class="menu-icon" id="mi-production"></div>
+      <div class="menu-label">Production</div>
+      <div class="menu-desc">Calculs et prévisions</div>
+    </div>
+
+    <div class="menu-card" onclick="switchTab('suivi')">
+      <div class="menu-icon" id="mi-suivi"></div>
+      <div class="menu-label">Suivi</div>
+      <div class="menu-desc">Bilan journalier</div>
+    </div>
+
+    <div class="menu-card" onclick="switchTab('historique')">
+      <div class="menu-icon" id="mi-historique"></div>
+      <div class="menu-label">Historique</div>
+      <div class="menu-desc">Bilans archivés</div>
+    </div>
+
+    <div class="menu-card admin-only" id="menu-carte" onclick="switchTab('carte')" style="display:none;">
+      <div class="menu-icon" id="mi-config"></div>
+      <div class="menu-label">Réglages</div>
+      <div class="menu-desc">Coefficients et produits</div>
+    </div>
+
+    <div class="menu-card admin-only" id="menu-gestion" onclick="switchTab('gestion')" style="display:none;">
+      <div class="menu-icon" id="mi-gestion"></div>
+      <div class="menu-label">Gestion</div>
+      <div class="menu-desc">Comptes employés</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PAGE PRODUCTION ====== -->
+<div class="page active" id="page-production">
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+    <button onclick="switchTab('menu')" style="background:var(--surface3); border:none; color:var(--text); padding:8px; border-radius:5px;">
+      ← Menu Principal
+    </button>
+    <button class="btn btn-danger" style="padding:8px; border-radius:5px;" onclick="clearProductionAndSuivi()">
+      🧹 Effacer prod. & suivi
+    </button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Production du Jour</div>
+    <div class="section-sub">Besoins matin & après-midi</div>
+  </div>
+
+  <div class="session-bar">
+    <div class="session-selector">
+      <label>Date</label>
+      <input type="date" id="sel-date" oninput="onDateChange()" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Space Mono',monospace;font-size:16px;padding:10px 12px;outline:none;">
+      <div id="jour-affiche" style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;margin-top:5px;letter-spacing:.5px;text-transform:uppercase;"></div>
+    </div>
+    <div class="session-selector">
+      <label>CA Prévu (€)</label>
+      <input type="number" inputmode="numeric" id="ca-prevu" value="" min="0" oninput="compute()" placeholder="">
+    </div>
+    <div class="stat-card half">
+      <div class="stat-val" id="stat-total-matin">0</div>
+      <div class="stat-label">Total Matin</div>
+    </div>
+    <div class="stat-card half">
+      <div class="stat-val" id="stat-total-pm">0</div>
+      <div class="stat-label">Total Après-Midi</div>
+    </div>
+    <div class="stat-card half">
+      <div class="stat-val" id="stat-sacs-matin">0</div>
+      <div class="stat-label">Sacs Matin</div>
+    </div>
+    <div class="stat-card half">
+      <div class="stat-val" id="stat-sacs-pm">0</div>
+      <div class="stat-label">Sacs Après-Midi</div>
+    </div>
+  </div>
+
+  <div class="card" id="card-season-selector">
+    <div class="card-title" id="ct-saison"></div>
+    <div id="season-selector-chips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+
+  <div class="card" id="card-odj-selector">
+    <div class="card-title" id="ct-odj"></div>
+    <div id="odj-selector-chips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-matin"></div>
+    <div id="matin-rows"></div>
+    <div class="total-row">
+      <div class="total-row-label">TOTAL</div>
+      <div class="field-box" style="display:none">
+        <div class="col-label">Besoin</div>
+        <div class="output-val blue" id="total-besoin-matin">0</div>
+      </div>
+      <div class="field-box">
+        <div class="col-label">À prod.</div>
+        <div class="output-val green" id="total-prod-matin">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-apm"></div>
+    <div id="apm-rows"></div>
+    <div class="total-row">
+      <div class="total-row-label">TOTAL</div>
+      <div></div>
+      <div class="field-box">
+        <div class="col-label">À prod.</div>
+        <div class="output-val orange" id="total-prod-pm">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-pertes"></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+      <div>
+        <label>Moment</label>
+        <select id="perte-moment">
+          <option value="matin">Matin (avant 13h30)</option>
+          <option value="apm">Après-midi / Soir</option>
+        </select>
+      </div>
+      <div>
+        <label>Produit</label>
+        <select id="perte-produit"></select>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+      <div>
+        <label>Quantité</label>
+        <input type="number" id="perte-qte" min="1" value="1">
+      </div>
+      <div>
+        <label>Raison</label>
+        <select id="perte-raison"></select>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="ajouterPerte()">Valider la perte</button>
+
+    <div id="liste-pertes-jour" style="margin-top: 15px; font-size: 12px; border-top: 1px solid var(--border); padding-top: 10px;">
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== PAGE CARTE ====== -->
+<div class="page" id="page-carte">
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+    <button onclick="switchTab('menu')" style="background:var(--surface3); border:none; color:var(--text); padding:8px; border-radius:5px;">
+      ← Menu Principal
+    </button>
+    <button class="btn btn-primary" onclick="saveConfig()" style="padding:8px 16px; border-radius:5px; font-weight:600;">💾 Sauvegarder</button>
+    <button onclick="switchTab('config')" style="background:var(--surface2); border:none; color:var(--text); padding:8px; border-radius:5px;">
+      ⚙️ Config avancée
+    </button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">La Carte</div>
+    <div class="section-sub">Produits & coefficients de popularité</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>Carte Fixe</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="fixed-products-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot" style="background:var(--accent2)"></div>Carte de Saison</div>
+    <div id="seasonal-products-section"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot" style="background:var(--info)"></div>Coefficients par Jour</div>
+    <div style="margin-bottom:10px;display:flex;gap:16px;font-family:'Space Mono',monospace;font-size:10px;">
+      <span style="color:var(--info)">■ Matin</span>
+      <span style="color:var(--accent2)">■ Après-midi</span>
+    </div>
+    <div class="coef-grid" id="coef-grid"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>Barème de Popularité</div>
+    <div class="barem-grid">
+      <div class="barem-card" style="border-color:rgba(192,57,43,.3)">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent)" id="coef-bs">11</div>
+        <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--accent)">BEST SELLERS</div>
+      </div>
+      <div class="barem-card" style="border-color:rgba(224,92,75,.3)">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent2)" id="coef-tp">9</div>
+        <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--accent2)">TRÈS POPULAIRE</div>
+      </div>
+      <div class="barem-card" style="border-color:rgba(232,130,110,.3)">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--accent3)" id="coef-pop">5</div>
+        <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--accent3)">POPULAIRE</div>
+      </div>
+      <div class="barem-card">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--text-muted)" id="coef-pp">2</div>
+        <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--text-muted)">PEU POPULAIRE</div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-primary" onclick="saveConfig()">💾 Sauvegarder</button>
+      <button class="btn btn-ghost" onclick="resetConfig()">↺ Réinit.</button>
+    </div>
+  </div>
+
+  <div style="position:sticky; bottom:calc(env(safe-area-inset-bottom) + 60px); z-index:50; padding: 12px 0 4px; background: linear-gradient(transparent, var(--bg) 40%);">
+    <button class="btn btn-primary" onclick="saveConfig()" style="width:100%; padding:14px; font-size:15px; font-weight:700; border-radius:var(--radius); box-shadow: 0 4px 16px rgba(255,49,49,0.25);">
+      💾 Sauvegarder la configuration
+    </button>
+  </div>
+
+</div>
+
+<!-- ====== PAGE SUIVI ====== -->
+<div class="page" id="page-suivi">
+
+  <button onclick="switchTab('menu')" style="background:var(--surface3); border:none; color:var(--text); padding:8px; border-radius:5px; margin-bottom:10px;">
+    ← Menu Principal
+  </button>
+
+  <div class="section-header">
+    <div class="section-title">Suivi de Journée</div>
+    <div class="section-sub">Bilan produit / vendu / reste</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-ventes"></div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+      <button class="btn btn-primary" style="flex:1; min-width:180px;" onclick="archiverJournee()">📅 Clôturer & Archiver la journée</button>
+      <button class="btn btn-danger" style="flex:1; min-width:180px;" onclick="clearProductionAndSuivi()">🧹 Effacer prod. & suivi</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Quantités vendues sur la journée.</p>
+    <div id="ventes-inputs"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-bilan"></div>
+    <div class="scroll-hint">← glisser pour voir tout →</div>
+    <div class="suivi-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th style="text-align:right">Produit</th>
+            <th style="text-align:right">Vendu</th>
+            <th style="text-align:right">Pertes</th>
+            <th style="text-align:right">Reste</th>
+            <th style="text-align:right">Taux</th>
+            <th>Prog.</th>
+          </tr>
+        </thead>
+        <tbody id="suivi-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-totaux"></div>
+    <div class="totaux-grid" id="suivi-totaux"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="ct-pertes-detail"></div>
+    <div id="suivi-pertes-detail"></div>
+  </div>
+
+</div>
+
+<!-- ====== PAGE HISTORIQUE ====== -->
+<div class="page" id="page-historique">
+
+  <button onclick="switchTab('menu')" style="background:var(--surface3); border:none; color:var(--text); padding:8px; border-radius:5px; margin-bottom:10px;">
+    ← Menu Principal
+  </button>
+
+  <div class="section-header">
+    <div class="section-title">Historique</div>
+    <div class="section-sub">Bilans journaliers archivés</div>
+  </div>
+
+  <div id="historique-list">
+    <div style="text-align:center; padding:40px; color:var(--text-muted); font-family:'Space Mono',monospace; font-size:12px;">
+      Chargement…
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== PAGE CONFIG ====== -->
+<div class="page" id="page-config">
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+    <button onclick="switchTab('menu')" style="background:var(--surface3); border:none; color:var(--text); padding:8px; border-radius:5px;">
+      ← Menu Principal
+    </button>
+    <button class="btn btn-ghost" onclick="exportConfig()" style="padding:8px; border-radius:5px;">📤 Exporter</button>
+    <button class="btn btn-ghost" onclick="importConfig()" style="padding:8px; border-radius:5px;">📥 Importer</button>
+    <span id="cfg-save-status"></span>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Configuration</div>
+    <div class="section-sub">Réglages du magasin</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot" style="background:var(--info)"></div>Popularité — Coefs de production</div>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="cfg-row">
+        <label>Best sellers (unités / 1000€ CA)</label>
+        <input type="number" inputmode="numeric" id="cfg-bs" value="11" min="0" oninput="saveConfigInline()">
+      </div>
+      <div class="cfg-row">
+        <label>Très populaire</label>
+        <input type="number" inputmode="numeric" id="cfg-tp" value="9" min="0" oninput="saveConfigInline()">
+      </div>
+      <div class="cfg-row">
+        <label>Populaire</label>
+        <input type="number" inputmode="numeric" id="cfg-pop" value="5" min="0" oninput="saveConfigInline()">
+      </div>
+      <div class="cfg-row">
+        <label>Peu populaire</label>
+        <input type="number" inputmode="numeric" id="cfg-pp" value="2" min="0" oninput="saveConfigInline()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot"></div>Gestion des produits</div>
+    <div id="cfg-product-management"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><div class="dot" style="background:var(--danger)"></div>Gestion des motifs de perte</div>
+    <div id="liste-raisons-config"></div>
+    <div style="display:flex; gap:5px; margin-top:10px;">
+      <input type="text" id="new-raison" placeholder="Nouvelle raison..." style="flex:1;">
+      <button class="btn btn-primary" onclick="addRaison()" style="width:50px">+</button>
+    </div>
+  </div>
+
+  <details id="cfg-advanced" class="cfg-details">
+    <summary>
+      <span>Paramètres avancés — Aujourd'hui</span>
+      <span class="cfg-details-arrow">▼</span>
+    </summary>
+
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Répartition par jour</div>
+      <p style="font-size:10px; color:var(--text-muted); margin-bottom:12px;">
+        Matin = part produite le matin (0.75 = 75%). APM se calcule automatiquement. Mult PM = facteur de projection après-midi.
+      </p>
+      <div id="cfg-jours-table"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--accent)"></div>Bonus d'après-midi</div>
+      <p style="font-size:10px; color:var(--text-muted); margin-bottom:10px;">
+        Bonus selon le volume produit le matin.
+      </p>
+      <div id="cfg-bonus-paliers"></div>
+    </div>
+  </details>
+
+  <details id="cfg-advanced-next" class="cfg-details">
+    <summary>
+      <span id="cfg-next-title">Paramètres avancés — À partir de demain</span>
+      <span class="cfg-details-arrow">▼</span>
+    </summary>
+    <div id="cfg-next-content" style="margin-top:10px;"></div>
+  </details>
+
+  <div class="card">
+    <div class="card-title"><div class="dot" style="background:var(--danger)"></div>Réinitialisation</div>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Remet tous les paramètres et données aux valeurs d'usine.</p>
+    <button class="btn btn-danger" onclick="hardReset()">⚠️ Réinitialiser tout</button>
+  </div>
+
+</div>
+
+<div class="page" id="page-gestion">
+  <button onclick="switchTab('menu')" style="background:var(--surface3); border:none; color:var(--text); padding:8px; border-radius:5px; margin-bottom:10px;">
+    ← Menu Principal
+  </button>
+  <div class="section-header">
+    <div class="section-title">Gestion</div>
+    <div class="section-sub">Magasins & utilisateurs</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Magasins</div>
+    <div id="gestion-stores-list" style="margin-bottom:14px;"></div>
+    <div style="display:flex;gap:10px;">
+      <input type="text" id="gestion-new-store-name" placeholder="Nom du nouveau magasin" style="flex:1;">
+      <button class="btn btn-primary" onclick="addStore(true)">Créer</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Utilisateurs</div>
+    <div id="gestion-users-list" style="margin-bottom:14px;"></div>
+    <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
+      <div style="font-weight:600;margin-bottom:10px;font-size:13px;">Créer un compte</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input type="text" id="new-user-name" placeholder="Prénom (ex: Marie)" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--surface);">
+        <input type="password" inputmode="numeric" id="new-user-password" placeholder="Code chiffres (ex: 1234)" autocomplete="new-password" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--surface);">
+        <select id="new-user-role" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--surface);">
+          <option value="employee">Employé</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button class="btn btn-primary" style="width:100%;" onclick="createUserAccount()">Créer le compte</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIGURATION
+// ============================================================
+const SUPABASE_URL = 'https://jhpxeopddsgkoejedfev.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocHhlb3BkZHNna29lamVkZmV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzk1NjEsImV4cCI6MjA5Mjg1NTU2MX0.YT3xk2b-cMqKrd4LYOETrwEtTyW-ZiapHeeR55Thx7Q';
+const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpocHhlb3BkZHNna29lamVkZmV2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzI3OTU2MSwiZXhwIjoyMDkyODU1NTYxfQ._5cmP3LNbvMTqbix-EMS6bmpmIFNocMZ9hX-MZ4AnEQ';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// MULTI-STORE — identifiant du magasin courant (dynamique)
+// ============================================================
+let currentStoreId   = null;
+let currentStoreName = null;
+
+// Référence au channel Realtime pour pouvoir le fermer proprement
+let _realtimeChannel = null;
+
+// Garde : empêche saveState d'écraser Supabase avant que les données soient chargées
+let _dataLoaded = false;
+
+// ============================================================
+// AUTHENTICATION
+// ============================================================
+const ADMIN_EMAIL = "gabin.amichaud@kristy.fr";
+
+// Les codes courts (< 6 chars) sont paddés à gauche avec des zéros pour satisfaire Supabase
+function formatCode(code) {
+    return /^\d+$/.test(code) && code.length < 6 ? code.padStart(6, '0') : code;
+}
+
+async function checkLogin() {
+    const uTyped = document.getElementById('username').value.trim();
+    const pTyped = document.getElementById('password').value;
+    const errorMsg = document.getElementById('login-error');
+
+    let emailToAuth = uTyped;
+    if (!uTyped.includes('@')) {
+        emailToAuth = (uTyped.toLowerCase() === "gabin" || uTyped.toLowerCase() === "admin")
+                      ? ADMIN_EMAIL
+                      : uTyped + "@wfsenart.local";
+    }
+
+    try {
+        const isAdminLogin = emailToAuth === ADMIN_EMAIL;
+        const { data, error } = await _supabase.auth.signInWithPassword({ email: emailToAuth, password: isAdminLogin ? pTyped : formatCode(pTyped) });
+        if (error) {
+            errorMsg.style.display = "block";
+            errorMsg.textContent = "Erreur : " + error.message;
+        } else {
+            document.getElementById('login-screen').style.display = "none";
+            await startSession(data.user);
+        }
+    } catch (err) {
+        alert("Erreur technique : " + err.message);
+    }
+}
+
+async function startSession(user) {
+    if (!user) return;
+    sessionStorage.setItem('isLoggedIn', 'true');
+    const isAdmin = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+    // Charger ou créer le profil utilisateur
+    let profile = await loadUserProfile(user.id);
+    if (!profile) {
+        if (!isAdmin) {
+            await _supabase.auth.signOut();
+            const errorMsg = document.getElementById('login-error');
+            if (errorMsg) { errorMsg.style.display = 'block'; errorMsg.textContent = 'Compte non reconnu. Contactez un administrateur.'; }
+            document.getElementById('login-screen').style.display = 'flex';
+            return;
+        }
+        const displayName = 'Gabin';
+        const role = 'admin';
+        await _supabase.from('user_profiles').insert({ id: user.id, role, display_name: displayName, store_id: null });
+        profile = { role, display_name: displayName, store_id: null };
+    }
+
+    const displayName = profile.display_name || user.email.split('@')[0];
+    sessionStorage.setItem('userRole', profile.role);
+    sessionStorage.setItem('userName', displayName.charAt(0).toUpperCase() + displayName.slice(1).toLowerCase());
+
+    if (profile.role === 'admin') {
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+        showHeaderUser();
+        await showStoreSelectorScreen();
+    } else {
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        showHeaderUser();
+        if (!profile.store_id) {
+            document.getElementById('pending-screen').style.display = 'flex';
+        } else {
+            await enterStore(profile.store_id, '');
+        }
+    }
+}
+
+async function loadUserProfile(userId) {
+    try {
+        const { data } = await _supabase.from('user_profiles').select('role, display_name, store_id').eq('id', userId).maybeSingle();
+        return data;
+    } catch { return null; }
+}
+
+async function showStoreSelectorScreen() {
+    const screen = document.getElementById('store-selector-screen');
+    screen.style.display = 'block';
+    const { data: stores } = await _supabase.from('stores').select('id, name').order('name');
+    const list = document.getElementById('store-selector-list');
+    if (!stores || stores.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-family:\'Space Mono\',monospace;font-size:12px;padding:20px;">Aucun magasin créé.</div>';
+        return;
+    }
+    list.innerHTML = stores.map(s => `
+      <button onclick='enterStore(${JSON.stringify(s.id)}, ${JSON.stringify(s.name)})'
+        style="width:100%;padding:18px 20px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);
+               font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--text);cursor:pointer;
+               text-align:left;display:flex;align-items:center;justify-content:space-between;transition:border-color .15s;"
+        onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+        ${s.name}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>`).join('');
+}
+
+function showStoreSelectorIfAdmin() {
+    if (sessionStorage.getItem('userRole') === 'admin') {
+        _dataLoaded = false;
+        currentStoreId = null;
+        showStoreSelectorScreen();
+    }
+}
+
+async function enterStore(storeId, storeName) {
+    currentStoreId = storeId;
+    currentStoreName = storeName;
+
+    // Réinitialiser l'état avant de charger le nouveau magasin
+    cfg = structuredClone(defaultConfig);
+    cfgNext = null;
+    resteHier = {}; vendusMatin = {}; vendusFull = {};
+    pertesMatin = {}; pertesApm = {};
+    activeSeasonProducts = null; activeOdjProducts = null;
+    const _dateEl = document.getElementById('sel-date');
+    const _caEl   = document.getElementById('ca-prevu');
+    _currentDate = getTodayString();
+    if (_dateEl) _dateEl.value = _currentDate;
+    if (_caEl)   _caEl.value  = '';
+
+    document.getElementById('store-selector-screen').style.display = 'none';
+    document.getElementById('pending-screen').style.display = 'none';
+    // Mettre à jour l'indicateur magasin dans le header
+    const headerStore = document.getElementById('header-store');
+    const headerStoreName = document.getElementById('header-store-name');
+    if (storeId && headerStore && headerStoreName) {
+        headerStoreName.textContent = storeName || storeId;
+        headerStore.style.display = 'flex';
+    }
+    toast('Magasin chargé ✓');
+    switchTab('menu');
+    _dataLoaded = false;
+    await syncDataFromServer();
+    initRealtimeSync();
+}
+
+async function logout() {
+    if (confirm("Voulez-vous vous déconnecter ?")) {
+        if (_realtimeChannel) { _supabase.removeChannel(_realtimeChannel); _realtimeChannel = null; }
+        await _supabase.auth.signOut();
+        sessionStorage.clear();
+        location.reload();
+    }
+}
+
+// ============================================================
+// FIX #1 — TABLE DÉDIÉE store_state (pas profiles)
+// Créer cette table dans Supabase SQL Editor :
+//
+//   CREATE TABLE store_state (
+//     id TEXT PRIMARY KEY,
+//     state_data JSONB,
+//     updated_at TIMESTAMPTZ DEFAULT now()
+//   );
+//   ALTER TABLE store_state ENABLE ROW LEVEL SECURITY;
+//   CREATE POLICY "allow_all_authenticated" ON store_state
+//     FOR ALL USING (auth.role() = 'authenticated');
+//
+// ============================================================
+
+// ============================================================
+// HELPER PARTAGÉ — applique un état reçu du serveur sur l'UI
+// ============================================================
+function applyState(fullState) {
+    if (!fullState) return;
+    if (fullState.cfg) {
+        cfg = fullState.cfg;
+        if (!cfg.miniProducts)   cfg.miniProducts   = defaultConfig.miniProducts.map(p => ({...p}));
+        if (!cfg.fraichProducts) cfg.fraichProducts = [];
+    }
+    resteHier            = fullState.resteHier            ?? {};
+    vendusMatin          = fullState.vendusMatin          ?? {};
+    vendusFull           = fullState.vendusFull           ?? {};
+    pertesMatin          = fullState.pertesMatin          ?? {};
+    pertesApm            = fullState.pertesApm            ?? {};
+    activeSeasonProducts = fullState.activeSeasonProducts ?? null;
+    activeOdjProducts    = fullState.activeOdjProducts    ?? null;
+
+    const caEl = document.getElementById('ca-prevu');
+    if (caEl) caEl.value = fullState.ca ?? '';
+
+    updateJourAffiche();
+    renderCarte();
+    compute();
+}
+
+// ============================================================
+// SESSION ID — détection de conflits inter-appareils
+// ============================================================
+const _sessionId = Math.random().toString(36).slice(2);
+
+// ============================================================
+// OFFLINE QUEUE
+// ============================================================
+let _isOffline = false;
+const _offlineQueue = [];
+
+window.addEventListener('offline', () => {
+    _isOffline = true;
+    const b = document.getElementById('offline-badge');
+    if (b) b.style.display = 'flex';
+});
+window.addEventListener('online', () => {
+    _isOffline = false;
+    const b = document.getElementById('offline-badge');
+    if (b) b.style.display = 'none';
+    _flushOfflineQueue();
+});
+async function _flushOfflineQueue() {
+    while (_offlineQueue.length > 0) {
+        const item = _offlineQueue[0];
+        try {
+            const { error } = await _supabase.from('store_state').upsert(item);
+            if (error) break;
+            _offlineQueue.shift();
+        } catch (_) { break; }
+    }
+    if (_offlineQueue.length === 0) {
+        _setSaveStatus('✓ Sync réseau OK', 'var(--success)');
+        setTimeout(() => _setSaveStatus(''), 2000);
+    }
+}
+
+// ============================================================
+// SAVE — état journalier (ventes, pertes, reste, CA)
+// ============================================================
+let _saveStateTimer  = null;
+let _saveConfigTimer = null;
+
+function _setSaveStatus(text, color) {
+    const el = document.getElementById('cfg-save-status');
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color || 'var(--success)';
+}
+
+function saveState(_ignored) {
+    if (!_dataLoaded) return;
+    _setSaveStatus('⏳ Sauvegarde…', 'var(--text-muted)');
+    clearTimeout(_saveStateTimer);
+    _saveStateTimer = setTimeout(_flushSaveState, 400);
+}
+
+async function _flushSaveState() {
+    if (!_dataLoaded) return;
+    _saveStateTimer = null;
+    const dateKey = _currentDate || getTodayString();
+    const payload = {
+        id: currentStoreId + '-' + dateKey,
+        state_data: {
+            jour: document.getElementById('sel-date')?.value ?? getTodayString(),
+            ca:   parseFloat(document.getElementById('ca-prevu')?.value) || 0,
+            resteHier, vendusMatin, vendusFull,
+            pertesMatin, pertesApm,
+            activeSeasonProducts, activeOdjProducts,
+            _savedBy: _sessionId
+        },
+        updated_at: new Date().toISOString()
+    };
+    if (_isOffline) {
+        _offlineQueue.push(payload);
+        _setSaveStatus('📵 En attente…', 'var(--text-muted)');
+        return;
+    }
+    try {
+        const { error } = await _supabase.from('store_state').upsert(payload);
+        if (error) { _setSaveStatus('⚠️ Erreur', 'var(--danger)'); toast(`⚠️ ${error.message}`); }
+        else { _setSaveStatus('✓ Sauvegardé', 'var(--success)'); setTimeout(() => _setSaveStatus(''), 2000); }
+    } catch (_) {
+        _offlineQueue.push(payload);
+        _setSaveStatus('📵 En attente…', 'var(--text-muted)');
+        toast('⚠️ Erreur réseau — données en attente');
+    }
+}
+
+// ============================================================
+// SAVE — configuration (produits, ratios, coefs)
+// ============================================================
+function saveConfigData() {
+    if (!_dataLoaded) return;
+    _setSaveStatus('⏳ Sauvegarde…', 'var(--text-muted)');
+    clearTimeout(_saveConfigTimer);
+    _saveConfigTimer = setTimeout(_flushConfigData, 400);
+}
+
+async function _flushConfigData() {
+    if (!_dataLoaded) return;
+    _saveConfigTimer = null;
+    const payload = {
+        id: currentStoreId + '-config',
+        state_data: { cfg, _savedBy: _sessionId },
+        updated_at: new Date().toISOString()
+    };
+    if (_isOffline) {
+        _offlineQueue.push(payload);
+        _setSaveStatus('📵 En attente…', 'var(--text-muted)');
+        return;
+    }
+    try {
+        const { error } = await _supabase.from('store_state').upsert(payload);
+        if (error) { _setSaveStatus('⚠️ Erreur', 'var(--danger)'); toast(`⚠️ ${error.message}`); }
+        else { _setSaveStatus('✓ Sauvegardé', 'var(--success)'); setTimeout(() => _setSaveStatus(''), 2000); }
+    } catch (_) {
+        _offlineQueue.push(payload);
+        _setSaveStatus('📵 En attente…', 'var(--text-muted)');
+        toast('⚠️ Erreur réseau — données en attente');
+    }
+}
+
+// ============================================================
+// SYNC DEPUIS SUPABASE — lit les deux lignes et les fusionne
+// ============================================================
+async function syncDataFromServer() {
+    try {
+        const dateKey = _currentDate || getTodayString();
+        const dailyId = currentStoreId + '-' + dateKey;
+        const { data, error } = await _supabase
+            .from('store_state')
+            .select('id, state_data')
+            .in('id', [dailyId, currentStoreId + '-config', currentStoreId + '-config-next']);
+
+        if (error) { console.error('syncDataFromServer error:', error); _dataLoaded = true; return; }
+
+        _dataLoaded = true;
+        const dailyRow      = data?.find(r => r.id === dailyId);
+        const configRow     = data?.find(r => r.id === currentStoreId + '-config');
+        const configNextRow = data?.find(r => r.id === currentStoreId + '-config-next');
+
+        // Remise à zéro des données journalières avant chargement
+        resteHier = {}; vendusMatin = {}; vendusFull = {};
+        pertesMatin = {}; pertesApm = {};
+        activeSeasonProducts = null; activeOdjProducts = null;
+        const caEl = document.getElementById('ca-prevu');
+        if (caEl) caEl.value = '';
+
+        // Vérifier si la config du lendemain doit être promue aujourd'hui
+        const nextData = configNextRow?.state_data;
+        let activeCfg = configRow?.state_data?.cfg ?? dailyRow?.state_data?.cfg;
+
+        if (nextData?.cfg && nextData?.effectiveDate && nextData.effectiveDate <= getTodayString()) {
+            // La date d'effet est arrivée : promouvoir la config demain → aujourd'hui
+            activeCfg = nextData.cfg;
+            cfgNext = null;
+            _supabase.from('store_state').upsert({
+                id: currentStoreId + '-config',
+                state_data: { cfg: activeCfg, _savedBy: _sessionId },
+                updated_at: new Date().toISOString()
+            });
+            _supabase.from('store_state').delete().eq('id', currentStoreId + '-config-next');
+            toast('✅ Nouveaux paramètres activés');
+        } else {
+            cfgNext = nextData?.cfg ?? null;
+        }
+
+        const merged = { ...(dailyRow?.state_data || {}), cfg: activeCfg ?? cfg };
+        applyState(merged);
+    } catch (err) {
+        console.error('syncDataFromServer exception:', err);
+        _dataLoaded = true;
+    }
+}
+
+// ============================================================
+// REALTIME — souscription aux deux lignes avec détection de conflit
+// ============================================================
+function initRealtimeSync() {
+    if (_realtimeChannel) { _supabase.removeChannel(_realtimeChannel); _realtimeChannel = null; }
+
+    _realtimeChannel = _supabase
+        .channel('store-sync-' + currentStoreId + '-' + (_currentDate || getTodayString()))
+        // --- Ligne état journalier ---
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'store_state', filter: `id=eq.${currentStoreId + '-' + (_currentDate || getTodayString())}` },
+            (payload) => {
+                try {
+                    const inc = payload.new?.state_data;
+                    if (!inc) return;
+                    const foreign = inc._savedBy && inc._savedBy !== _sessionId;
+                    if (foreign && _saveStateTimer !== null) {
+                        clearTimeout(_saveStateTimer); _saveStateTimer = null;
+                        _setSaveStatus('⚠️ Conflit résolu', 'var(--danger)');
+                        toast('⚠️ Données mises à jour par un autre appareil — votre saisie a été annulée');
+                    } else if (foreign) {
+                        toast('📲 Mise à jour reçue ✓');
+                    } else {
+                        // Sauvegarde de notre propre session : ne pas re-rendre pour ne pas fermer le clavier iPad
+                        return;
+                    }
+                    resteHier = inc.resteHier ?? resteHier;
+                    vendusMatin = inc.vendusMatin ?? vendusMatin;
+                    vendusFull = inc.vendusFull ?? vendusFull;
+                    pertesMatin = inc.pertesMatin ?? pertesMatin;
+                    pertesApm = inc.pertesApm ?? pertesApm;
+                    activeSeasonProducts = inc.activeSeasonProducts ?? activeSeasonProducts;
+                    activeOdjProducts = inc.activeOdjProducts ?? activeOdjProducts;
+                    const caEl = document.getElementById('ca-prevu');
+                    if (caEl && inc.ca !== undefined) caEl.value = inc.ca;
+                    renderCarte(); compute();
+                } catch (err) { console.error('Realtime daily error:', err); }
+            }
+        )
+        // --- Ligne configuration ---
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'store_state', filter: `id=eq.${currentStoreId}-config` },
+            (payload) => {
+                try {
+                    const inc = payload.new?.state_data;
+                    if (!inc?.cfg) return;
+                    const foreign = inc._savedBy && inc._savedBy !== _sessionId;
+                    if (foreign && _saveConfigTimer !== null) {
+                        clearTimeout(_saveConfigTimer); _saveConfigTimer = null;
+                        _setSaveStatus('⚠️ Conflit résolu', 'var(--danger)');
+                        toast('⚠️ Configuration mise à jour par un autre appareil');
+                    } else if (foreign) {
+                        toast('📲 Configuration mise à jour ✓');
+                    } else {
+                        // Sauvegarde de notre propre session : ne pas re-rendre pour ne pas fermer le clavier iPad
+                        return;
+                    }
+                    cfg = inc.cfg;
+                    if (!cfg.miniProducts)   cfg.miniProducts   = defaultConfig.miniProducts.map(p => ({...p}));
+                    if (!cfg.fraichProducts) cfg.fraichProducts = [];
+                    renderCarte(); renderConfig(); compute();
+                } catch (err) { console.error('Realtime config error:', err); }
+            }
+        )
+        .subscribe((status) => {
+            console.log('Realtime status:', status);
+            const el = document.getElementById('rt-status-badge');
+            if (!el) return;
+            el.style.display = 'block';
+            if (status === 'SUBSCRIBED') { el.textContent = '🟢 Sync'; el.style.background = '#16a34a'; }
+            else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') { el.textContent = '🔴 Sync KO'; el.style.background = '#dc2626'; }
+            else { el.textContent = '🟡 Sync…'; el.style.background = '#d97706'; }
+        });
+}
+
+// ============================================================
+// STATE — FIX #4 : suppression de tous les accès localStorage
+// pour les données de production (persistence 100% Supabase)
+// ============================================================
+const defaultConfig = {
+  pop: { "Best sellers": 11, "Très populaire": 9, "Populaire": 5, "Peu populaire": 2 },
+  ratios: {
+    Lundi:    { matin: 0.75, apm: 0.25 },
+    Mardi:    { matin: 0.75, apm: 0.25 },
+    Mercredi: { matin: 0.75, apm: 0.25 },
+    Jeudi:    { matin: 0.75, apm: 0.25 },
+    Vendredi: { matin: 0.70, apm: 0.30 },
+    Samedi:   { matin: 0.70, apm: 0.30 },
+    Dimanche: { matin: 0.70, apm: 0.30 }
+  },
+  pmMultiplicateur: {
+    Lundi: 0.5, Mardi: 0.5, Mercredi: 0.5, Jeudi: 0.5,
+    Vendredi: 1.2, Samedi: 1.2, Dimanche: 1.2
+  },
+  fixedProducts: [
+    { name:"Orientale",   pop:"Best sellers" },
+    { name:"Norvégienne", pop:"Très populaire" },
+    { name:"Crocwaf",     pop:"Populaire" },
+    { name:"Wafbruger",   pop:"Best sellers" }
+  ],
+  seasonProducts: [
+    { name:"César",                    pop:"Populaire" },
+    { name:"Andalouse",                pop:"Très populaire" },
+    { name:"Primavera",                pop:"Peu populaire" },
+    { name:"MiamMamia",                pop:"Très populaire" },
+    { name:"Stickwaf façon hot dog",   coef: 3, sacFactor: 0.5 },
+    { name:"Stickwaf chèvre miel",     coef: 3, sacFactor: 0.5 }
+  ],
+  odjProducts: [],
+  fraichProducts: [],
+  miniProducts: [
+    { name: "Mini Lunch Croc Waf",  coef: 2, sacFactor: 0.5 },
+    { name: "Mini Lunch Wafburger", coef: 2, sacFactor: 0.5 },
+    { name: "Mini Lunch Poulet",    coef: 1, sacFactor: 0.5 }
+  ],
+  bonusPaliers: [
+    { seuil: 25, valeur: 5 },
+    { seuil: 15, valeur: 3 },
+    { seuil: 8,  valeur: 2 }
+  ],
+  mercrediMiniDouble: false,
+  raisonsPerte: ["Tombé par terre", "Erreur client", "Date dépassée", "Défaut visuel"],
+  produits: ["Orientale", "Norvégienne", "Crocwaf", "Wafbruger", "César", "Andalouse", "Primavera", "MiamMamia"]
+};
+
+// Plafond journalier pour les produits fraîch (1/4 d'un sac de 54 unités)
+const FRAICH_DAILY_CAP = Math.floor(54 / 4); // 13 unités/jour
+
+// FIX #4 : plus de localStorage — on part toujours du defaultConfig
+// Le vrai état sera chargé depuis Supabase dans syncDataFromServer()
+let cfg         = structuredClone(defaultConfig);
+let matinProductions = [];
+let pmProductions    = [];
+let matinSacsGlobal  = 0;
+let pmSacsGlobal     = 0;
+let matinSacsFraich  = 0;
+let pmSacsFraich     = 0;
+
+// FIX #4 : variables initialisées vides — remplies par applyState()
+let resteHier   = {};
+let vendusMatin = {};
+let vendusFull  = {};
+let pertesMatin = {};
+let pertesApm   = {};
+let _currentDate = '';
+// Config planifiée pour le lendemain (null = aucune modification en attente)
+let cfgNext = null;
+
+// Lunch de saison actifs pour le jour courant (noms). null = tous actifs par défaut.
+let activeSeasonProducts = null;
+// Lunch ODJ actifs pour le jour courant. null = tous actifs par défaut.
+let activeOdjProducts = null;
+
+// ============================================================
+// HELPERS
+// ============================================================
+function renderSeasonSelector() {
+  const container = document.getElementById('season-selector-chips');
+  if (!container) return;
+  const active = activeSeasonProducts ?? cfg.seasonProducts.map(p => p.name);
+  container.innerHTML = cfg.seasonProducts.map(p => {
+    const on = active.includes(p.name);
+    return `<button onclick='onSeasonToggle(${JSON.stringify(p.name)})'
+      style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.5px;padding:8px 14px;
+             border-radius:20px;border:2px solid ${on ? 'var(--accent)' : 'var(--border)'};
+             background:${on ? 'var(--accent)' : 'transparent'};
+             color:${on ? '#fff' : 'var(--text-muted)'};cursor:pointer;transition:all .15s;font-weight:${on?'600':'400'}">
+      ${on ? '✓ ' : ''}${p.name}
+    </button>`;
+  }).join('');
+}
+
+function onSeasonToggle(name) {
+  if (activeSeasonProducts === null) activeSeasonProducts = cfg.seasonProducts.map(p => p.name);
+  if (activeSeasonProducts.includes(name)) {
+    activeSeasonProducts = activeSeasonProducts.filter(n => n !== name);
+  } else {
+    activeSeasonProducts = [...activeSeasonProducts, name];
+  }
+  renderSeasonSelector();
+  compute();
+}
+
+function renderOdjSelector() {
+  const container = document.getElementById('odj-selector-chips');
+  const card = document.getElementById('card-odj-selector');
+  if (!container) return;
+  const odjList = cfg.odjProducts || [];
+  if (card) card.style.display = odjList.length === 0 ? 'none' : 'block';
+  if (odjList.length === 0) return;
+  const active = activeOdjProducts ?? odjList.map(p => p.name);
+  container.innerHTML = odjList.map(p => {
+    const on = active.includes(p.name);
+    return `<button onclick='onOdjToggle(${JSON.stringify(p.name)})'
+      style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.5px;padding:8px 14px;
+             border-radius:20px;border:2px solid ${on ? '#af52de' : 'var(--border)'};
+             background:${on ? '#af52de' : 'transparent'};
+             color:${on ? '#fff' : 'var(--text-muted)'};cursor:pointer;transition:all .15s;font-weight:${on ? '600' : '400'}">
+      ${on ? '✓ ' : ''}${p.name}
+    </button>`;
+  }).join('');
+}
+
+function onOdjToggle(name) {
+  if (activeOdjProducts === null) activeOdjProducts = (cfg.odjProducts || []).map(p => p.name);
+  if (activeOdjProducts.includes(name)) {
+    activeOdjProducts = activeOdjProducts.filter(n => n !== name);
+  } else {
+    activeOdjProducts = [...activeOdjProducts, name];
+  }
+  renderOdjSelector();
+  compute();
+}
+
+function allProducts() {
+  const season = activeSeasonProducts === null
+    ? cfg.seasonProducts
+    : cfg.seasonProducts.filter(p => activeSeasonProducts.includes(p.name));
+  const odj = activeOdjProducts === null
+    ? (cfg.odjProducts || [])
+    : (cfg.odjProducts || []).filter(p => activeOdjProducts.includes(p.name));
+  return [...cfg.fixedProducts, ...(cfg.miniProducts || []), ...season, ...odj, ...(cfg.fraichProducts || [])];
+}
+
+function isFraichProduct(name) {
+  return (cfg.fraichProducts || []).some(p => p.name === name);
+}
+
+function getProductPop(name) {
+  const p = allProducts().find(p => p.name === name);
+  return p ? p.pop : "Peu populaire";
+}
+
+function popCoef(pop) { return cfg.pop[pop] || 0; }
+
+function productCoef(pop, name) {
+  if (name) {
+    const all = [...cfg.fixedProducts, ...(cfg.miniProducts||[]), ...cfg.seasonProducts, ...(cfg.odjProducts||[])];
+    const found = all.find(x => x.name === name);
+    if (found && found.coef !== undefined) return found.coef;
+  }
+  return popCoef(pop);
+}
+
+function productBadge(p) {
+  if (p && isFraichProduct(p.name)) {
+    return `<span class="badge badge-fr">fraîch ≤${FRAICH_DAILY_CAP}u/j</span>`;
+  }
+  if (p && p.coef !== undefined) {
+    if (!p.pop) {
+      return `<span class="badge" style="background:rgba(255,149,0,.15);color:#c87000;border:1px solid rgba(255,149,0,.3)">saison ×${p.coef}/1000€</span>`;
+    }
+    return `<span class="badge" style="background:rgba(175,82,222,.15);color:#af52de;border:1px solid rgba(175,82,222,.3)">mini ×${p.coef}/1000€</span>`;
+  }
+  return popBadge(p?.pop);
+}
+
+function popBadge(pop) {
+  const map = { "Best sellers":"bs", "Très populaire":"tp", "Populaire":"pop", "Peu populaire":"pp" };
+  return `<span class="badge badge-${map[pop]}">${pop}</span>`;
+}
+
+function roundUp(n) { return Math.ceil(n); }
+function ceiling25(n) { return Math.ceil(n / 0.25) * 0.25; }
+
+function isMiniProduct(name) {
+  return (cfg.miniProducts || []).some(p => p.name === name);
+}
+
+function getBonusTampon(units) {
+  const paliers = [...(cfg.bonusPaliers || [])].sort((a, b) => b.seuil - a.seuil);
+  for (const palier of paliers) {
+    if (units >= palier.seuil) return palier.valeur;
+  }
+  return 0;
+}
+
+function sacEquiv(item) {
+  return (item.prod || 0) * (item.sacFactor ?? 1);
+}
+
+function appliquerRedistribution(listeProduits, totalSacs) {
+  if (!listeProduits.length || totalSacs <= 0) return listeProduits;
+  const target = totalSacs * 54;
+
+  // Plancher chaque produit et calculer la fraction décimale
+  const items = listeProduits.map(p => {
+    const ideal = p.prod || 0;
+    const floor  = Math.floor(ideal);
+    const frac   = ideal - floor;
+    return { ...p, ideal, floor, frac };
+  });
+
+  // Déficit en équivalents-sac après plancher
+  let deficit = target - items.reduce((s, p) => s + p.floor * (p.sacFactor ?? 1), 0);
+  if (deficit < 0.01) return items.map(p => ({ ...p, prod: p.floor }));
+
+  // Seuls les produits avec une prod initiale > 0 reçoivent des unités
+  const eligibles = items.filter(p => p.ideal > 0);
+  if (!eligibles.length) return items;
+
+  const totalSacFactor = eligibles.reduce((s, p) => s + (p.sacFactor ?? 1), 0);
+  const bonus = {};
+
+  // Étape 1 — tours complets : chaque éligible reçoit le même socle
+  const toursComplets = Math.floor(deficit / totalSacFactor);
+  if (toursComplets > 0) {
+    eligibles.forEach(p => { bonus[p.name] = toursComplets; });
+    deficit -= toursComplets * totalSacFactor;
+  }
+
+  // Étape 2 — résidu LRM : trier par fraction × sacFactor et donner +1 aux meilleurs
+  const ranked = [...eligibles].sort(
+    (a, b) => (b.frac * (b.sacFactor ?? 1)) - (a.frac * (a.sacFactor ?? 1))
+  );
+  for (const p of ranked) {
+    if (deficit < 0.01) break;
+    bonus[p.name] = (bonus[p.name] || 0) + 1;
+    deficit -= (p.sacFactor ?? 1);
+  }
+
+  return items.map(p => ({ ...p, prod: p.floor + (bonus[p.name] || 0) }));
+}
+
+const JOURS_FR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MOIS_FR  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+function getTodayString() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+function getJour() {
+  const val = document.getElementById('sel-date')?.value;
+  if (!val) return 'Lundi';
+  const [y, m, d] = val.split('-').map(Number);
+  return JOURS_FR[new Date(y, m - 1, d).getDay()];
+}
+
+function updateJourAffiche() {
+  const val = document.getElementById('sel-date')?.value;
+  const el  = document.getElementById('jour-affiche');
+  if (!el) return;
+  if (!val) { el.textContent = ''; return; }
+  const [y, m, d] = val.split('-').map(Number);
+  el.textContent = `${JOURS_FR[new Date(y, m-1, d).getDay()]} ${d} ${MOIS_FR[m-1]} ${y}`;
+}
+
+function onDateChange() {
+  const dateEl = document.getElementById('sel-date');
+  const newDate = dateEl?.value;
+  if (!newDate || newDate === _currentDate) { updateJourAffiche(); compute(); return; }
+
+  // Sauvegarde immédiate de la date courante avant de changer
+  clearTimeout(_saveStateTimer);
+  _saveStateTimer = null;
+  if (_dataLoaded && _currentDate) _flushSaveState();
+
+  _currentDate = newDate;
+  updateJourAffiche();
+
+  // Charger les données de la nouvelle date et réabonner le realtime
+  syncDataFromServer();
+  initRealtimeSync();
+}
+function getCA()   { return parseFloat(document.getElementById('ca-prevu').value) || 0; }
+
+function getMatinCoef() {
+  const jour = getJour();
+  return cfg.ratios[jour]?.matin ?? 0.75;
+}
+
+function getPMCoef() {
+  const jour = getJour();
+  return cfg.pmMultiplicateur[jour] ?? (jour === 'Vendredi' ? 1.2 : 0.5);
+}
+
+function besoinTotal(pop, name) { return roundUp(getCA() / 1000 * productCoef(pop, name)); }
+
+function prodMatin(pop, name) {
+  const besoinGlobal = (getCA() / 1000) * productCoef(pop, name);
+  const jour = getJour();
+  const ratioMatin = cfg.ratios[jour]?.matin ?? 0.75;
+  const r = resteHier[name] || 0;
+  const factor = (cfg.mercrediMiniDouble && jour === 'Mercredi' && isMiniProduct(name)) ? 2 : 1;
+  const raw = (besoinGlobal - r) * ratioMatin * factor;
+  const result = raw > 1 ? Math.ceil(raw) : 0;
+  if (isFraichProduct(name)) return Math.min(result, Math.floor(FRAICH_DAILY_CAP * ratioMatin));
+  return result;
+}
+
+function prodPM(pop, name, matinUnits = null) {
+  if (cfg.mercrediMiniDouble && getJour() === 'Mercredi' && isMiniProduct(name)) return 0;
+  const venduMatin = vendusMatin[name] || 0;
+  const matinProd = matinUnits !== null ? matinUnits : prodMatin(pop, name);
+  const stockMatin = matinProd + (resteHier[name] || 0);
+  const totalPertesMatin = (pertesMatin[name] || []).reduce((sum, item) => sum + item.qte, 0);
+  const restantApresMatin = Math.max(0, stockMatin - venduMatin - totalPertesMatin);
+  const coefPM = getPMCoef();
+
+  let projectionVentes = venduMatin * coefPM;
+  let besoinBase = Math.max(0, projectionVentes - restantApresMatin);
+  let bonusSecurite = venduMatin > 0 ? getBonusTampon(besoinTotal(pop, name)) : 0;
+
+  const rawPM = besoinBase + bonusSecurite;
+  const pmResult = rawPM > 1 ? Math.ceil(rawPM) : 0;
+  if (isFraichProduct(name)) return Math.max(0, Math.min(pmResult, FRAICH_DAILY_CAP - matinProd));
+  return pmResult;
+}
+
+// ============================================================
+// RENDER PRODUCTION
+// ============================================================
+function compute() {
+  renderSeasonSelector();
+  renderOdjSelector();
+  const products = allProducts();
+  const regularProds = products.filter(p => !isFraichProduct(p.name));
+  const fraichProds  = products.filter(p =>  isFraichProduct(p.name));
+
+  // --- MATIN : sacs réguliers ---
+  const matinRawRegular = regularProds.map(p => {
+    const besoin = besoinTotal(p.pop, p.name);
+    const prod = prodMatin(p.pop, p.name);
+    const reste = resteHier[p.name] || 0;
+    const pct = besoin > 0 ? Math.min(100, Math.round(reste / besoin * 100)) : 0;
+    return { ...p, besoin, prod, reste, pct };
+  });
+  const _rawMatinSE = matinRawRegular.reduce((sum, i) => sum + i.prod * (i.sacFactor ?? 1), 0);
+  matinSacsGlobal = ceiling25(_rawMatinSE / 54);
+  const matinRegularFinal = appliquerRedistribution(matinRawRegular, matinSacsGlobal);
+
+  // --- MATIN : sacs fraîch (pas de redistribution, décompte séparé) ---
+  const matinRawFraich = fraichProds.map(p => {
+    const besoin = besoinTotal(p.pop, p.name);
+    const prod = prodMatin(p.pop, p.name);
+    const reste = resteHier[p.name] || 0;
+    const pct = besoin > 0 ? Math.min(100, Math.round(reste / besoin * 100)) : 0;
+    return { ...p, besoin, prod, reste, pct };
+  });
+  const _rawMatinSEFraich = matinRawFraich.reduce((sum, i) => sum + i.prod * (i.sacFactor ?? 1), 0);
+  matinSacsFraich = ceiling25(_rawMatinSEFraich / 54);
+
+  matinProductions = [...matinRegularFinal, ...matinRawFraich];
+
+  // --- APM : sacs réguliers ---
+  const pmRawRegular = regularProds.map(p => {
+    const matinProd = matinProductions.find(i => i.name === p.name)?.prod ?? prodMatin(p.pop, p.name);
+    const prod = prodPM(p.pop, p.name, matinProd);
+    const vendu = vendusMatin[p.name] || 0;
+    return { ...p, prod, vendu, matinProd };
+  });
+  const _rawPmSE = pmRawRegular.reduce((sum, i) => sum + i.prod * (i.sacFactor ?? 1), 0);
+  pmSacsGlobal = ceiling25(_rawPmSE / 54);
+  const pmRegularFinal = appliquerRedistribution(pmRawRegular, pmSacsGlobal);
+
+  // --- APM : sacs fraîch ---
+  const pmRawFraich = fraichProds.map(p => {
+    const matinProd = matinProductions.find(i => i.name === p.name)?.prod ?? prodMatin(p.pop, p.name);
+    const prod = prodPM(p.pop, p.name, matinProd);
+    const vendu = vendusMatin[p.name] || 0;
+    return { ...p, prod, vendu, matinProd };
+  });
+  const _rawPmSEFraich = pmRawFraich.reduce((sum, i) => sum + i.prod * (i.sacFactor ?? 1), 0);
+  pmSacsFraich = ceiling25(_rawPmSEFraich / 54);
+
+  pmProductions = [...pmRegularFinal, ...pmRawFraich];
+
+  renderMatinRows();
+  renderPMRows();
+  updateSuivi();
+  renderPertes();
+  saveState(cfg);
+}
+
+function renderMatinRows() {
+  const products = matinProductions;
+  const totalSE = products.reduce((s, p) => s + p.prod * (p.sacFactor ?? 1), 0);
+  const sacCount = matinSacsGlobal;
+  let totalBesoin = 0, totalProd = 0, totalSacEquiv = 0;
+  let html = '';
+
+  products.forEach(p => {
+    const b = p.besoin;
+    const r = p.reste;
+    const prod = p.prod;
+    totalBesoin += b;
+    totalProd += prod;
+    totalSacEquiv += prod * (p.sacFactor ?? 1);
+    const pct = b > 0 ? Math.min(100, Math.round(r / b * 100)) : 0;
+    const barColor = b > 0 ? (pct > 80 ? 'var(--success)' : pct > 40 ? 'var(--accent)' : 'var(--danger)') : 'var(--danger)';
+
+    html += `<div class="product-row">
+      <div class="product-row-top">
+        <div class="product-name">${p.name} ${productBadge(p)}</div>
+      </div>
+      <div class="product-row-fields">
+        <div class="field-box">
+          <div class="col-label">Reste hier</div>
+          <input class="inline-input" type="number" inputmode="numeric" min="0" value="${r || ''}"
+            onchange='setReste(${JSON.stringify(p.name)}, this.value); compute()'>
+        </div>
+        <div class="field-box" style="display:none">
+          <div class="col-label">Besoin</div>
+          <div class="output-val blue">${b}</div>
+        </div>
+        <div class="field-box">
+          <div class="col-label">À prod.</div>
+          <div class="output-val green">${prod}</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label">${pct}% en stock</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+    </div>`;
+  });
+
+  const sacs = sacCount;
+  const regularLabel = sacs > 0 ? `${sacs} sac${sacs > 1 ? 's' : ''}` : '0 sac';
+  const fraichLabel  = matinSacsFraich > 0 ? ` + ${matinSacsFraich} fraîch` : '';
+  const affichageSacs = totalProd > 0 ? regularLabel + fraichLabel : '0 sac';
+
+  document.getElementById('matin-rows').innerHTML = html;
+  document.getElementById('total-besoin-matin').textContent = totalBesoin;
+  document.getElementById('total-prod-matin').textContent = affichageSacs;
+  document.getElementById('stat-total-matin').textContent = affichageSacs;
+  document.getElementById('stat-sacs-matin').textContent = sacs.toFixed(2) + (matinSacsFraich > 0 ? ` +${matinSacsFraich}fr` : '');
+}
+
+function renderPMRows() {
+  const products = pmProductions;
+  const totalSE = products.reduce((s, p) => s + p.prod * (p.sacFactor ?? 1), 0);
+  const sacCount = pmSacsGlobal;
+  let totalProd = 0, totalSacEquiv = 0;
+  let html = '';
+
+  products.forEach(p => {
+    const prod = p.prod;
+    totalProd += prod;
+    totalSacEquiv += prod * (p.sacFactor ?? 1);
+    const vendu = p.vendu;
+    const bonus = vendu > 0 ? getBonusTampon(besoinTotal(p.pop, p.name)) : 0;
+
+    html += `<div class="product-row">
+      <div class="product-row-top">
+        <div class="product-name">${p.name} ${productBadge(p)}</div>
+      </div>
+      <div class="product-row-fields">
+        <div class="field-box">
+          <div class="col-label">Vendus midi</div>
+          <input class="inline-input" type="number" inputmode="numeric" min="0" value="${vendu || ''}"
+            onchange='setVenduMatin(${JSON.stringify(p.name)}, this.value); compute()'>
+        </div>
+        <div class="field-box">
+          <div class="col-label">Stock tampon</div>
+          <div class="output-val muted">${bonus}</div>
+        </div>
+        <div class="field-box">
+          <div class="col-label">À prod.</div>
+          <div class="output-val orange">${prod}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  const sacs = sacCount;
+  const regularLabelPM = sacs > 0 ? `${sacs} sac${sacs > 1 ? 's' : ''}` : '0 sac';
+  const fraichLabelPM  = pmSacsFraich > 0 ? ` + ${pmSacsFraich} fraîch` : '';
+  const affichageSacsPM = totalProd > 0 ? regularLabelPM + fraichLabelPM : '0 sac';
+
+  document.getElementById('apm-rows').innerHTML = html;
+  document.getElementById('total-prod-pm').textContent = affichageSacsPM;
+  document.getElementById('stat-total-pm').textContent = affichageSacsPM;
+  document.getElementById('stat-sacs-pm').textContent = sacs.toFixed(2) + (pmSacsFraich > 0 ? ` +${pmSacsFraich}fr` : '');
+}
+
+function setReste(name, val) {
+  resteHier[name] = parseInt(val) || 0;
+  saveState(cfg);
+}
+
+function setVenduMatin(name, val) {
+  vendusMatin[name] = parseInt(val) || 0;
+  saveState(cfg);
+}
+
+// ============================================================
+// RENDER CARTE
+// ============================================================
+function renderCarte() {
+  let html = '';
+  cfg.fixedProducts.forEach(p => {
+    html += `<div class="product-card">
+      <div class="product-card-name">${p.name}</div>
+      <div>${popBadge(p.pop)}</div>
+      <div style="margin-top:10px">
+        <div class="product-card-coef">${popCoef(p.pop)} <span>/ 1000€ CA</span></div>
+      </div>
+    </div>`;
+  });
+  (cfg.miniProducts || []).forEach(p => {
+    html += `<div class="product-card" style="border-left:3px solid #af52de;">
+      <div class="product-card-name">${p.name}</div>
+      <div>${productBadge(p)}</div>
+      <div style="margin-top:10px">
+        <div class="product-card-coef">${p.coef} <span>/ 1000€ CA</span></div>
+        <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);margin-top:4px;">½ sac par unité</div>
+      </div>
+    </div>`;
+  });
+  (cfg.fraichProducts || []).forEach(p => {
+    html += `<div class="product-card" style="border-left:3px solid #0891b2;">
+      <div class="product-card-name">${p.name}</div>
+      <div>${productBadge(p)}</div>
+      <div style="margin-top:10px">
+        <div class="product-card-coef">${popCoef(p.pop)} <span>/ 1000€ CA</span></div>
+        <div style="font-size:10px;font-family:'Space Mono',monospace;color:#0891b2;margin-top:4px;">Sac fraîcheur · plafond ${FRAICH_DAILY_CAP} u/j</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('fixed-products-grid').innerHTML = html;
+
+  let html2 = '';
+  cfg.seasonProducts.forEach((p, i) => {
+    if (p.coef !== undefined) {
+      html2 += `<div style="padding:12px 0;border-bottom:1px solid var(--surface3)">
+        <div style="font-weight:600;margin-bottom:8px">${p.name} ${productBadge(p)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+          <div>
+            <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);margin-bottom:4px">COEF / 1000€ CA</div>
+            <input type="number" min="0" step="0.5" value="${p.coef}" onchange="setSeasonCoef(${i}, this.value)"
+              style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Space Mono',monospace;font-size:14px;background:var(--surface2);">
+          </div>
+          <div>
+            <div style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);margin-bottom:4px">FACTEUR SAC (0.1–1)</div>
+            <input type="number" min="0.1" max="1" step="0.1" value="${p.sacFactor ?? 0.5}" onchange="setSeasonSacFactor(${i}, this.value)"
+              style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'Space Mono',monospace;font-size:14px;background:var(--surface2);">
+          </div>
+        </div>
+      </div>`;
+    } else {
+      html2 += `<div style="padding:12px 0;border-bottom:1px solid var(--surface3)">
+        <div style="font-weight:600;margin-bottom:8px">${p.name}</div>
+        <div class="pop-selector">
+          ${["Best sellers","Très populaire","Populaire","Peu populaire"].map(pop =>
+            `<button class="pop-btn${p.pop===pop?' selected':''}" data-pop="${pop}" onclick="setSeasonPop(${i},'${pop}')">${pop}</button>`
+          ).join('')}
+        </div>
+        <div style="margin-top:8px;font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted)">
+          Coef : <span style="color:var(--accent);font-size:14px">${popCoef(p.pop)}</span>
+        </div>
+      </div>`;
+    }
+  });
+  document.getElementById('seasonal-products-section').innerHTML = html2;
+
+  const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  document.getElementById('coef-grid').innerHTML = days.map(d => `
+    <div class="coef-day">
+      <div class="day-name">${d.substring(0,3)}</div>
+      <div class="coef-am">${cfg.ratios[d]?.matin || 0}</div>
+      <div class="coef-label">Matin</div>
+      <div class="coef-pm">${cfg.ratios[d]?.apm || 0}</div>
+      <div class="coef-label">AP-M</div>
+    </div>
+  `).join('');
+
+  document.getElementById('coef-bs').textContent  = cfg.pop['Best sellers'];
+  document.getElementById('coef-tp').textContent  = cfg.pop['Très populaire'];
+  document.getElementById('coef-pop').textContent = cfg.pop['Populaire'];
+  document.getElementById('coef-pp').textContent  = cfg.pop['Peu populaire'];
+}
+
+function setSeasonPop(idx, pop) {
+  cfg.seasonProducts[idx].pop = pop;
+  saveConfigData();
+  renderCarte();
+  compute();
+}
+
+// ============================================================
+// RENDER SUIVI
+// ============================================================
+function updateSuivi() {
+  renderSuivi();
+  renderVentesInputs();
+}
+
+function clearProductionAndSuivi() {
+  matinProductions = [];
+  pmProductions    = [];
+  resteHier   = {};
+  vendusMatin = {};
+  vendusFull  = {};
+  pertesMatin = {};
+  pertesApm   = {};
+  compute();
+  renderVentesInputs();
+  saveState(cfg);
+  toast('Données production et suivi supprimées');
+}
+
+function renderSuivi() {
+  const products = allProducts();
+  let html = '';
+  let totalProd = 0, totalVendu = 0, totalReste = 0;
+
+  let totalPertes = 0;
+  const pertesDetail = [];
+
+  products.forEach(p => {
+    const matProd      = matinProductions.find(item => item.name === p.name)?.prod ?? prodMatin(p.pop, p.name);
+    const pmProd       = pmProductions.find(item => item.name === p.name)?.prod ?? prodPM(p.pop, p.name, matProd);
+    const prod         = matProd + pmProd;
+    const vendu        = vendusFull[p.name] || 0;
+    const pertesMat    = pertesMatin[p.name] || [];
+    const pertesAp     = pertesApm[p.name]   || [];
+    const pertesTot    = [...pertesMat, ...pertesAp].reduce((s, i) => s + i.qte, 0);
+    const reste        = Math.max(0, prod - vendu - pertesTot);
+    const taux         = prod > 0 ? Math.round(vendu / prod * 100) : 0;
+    totalProd += prod; totalVendu += vendu; totalReste += reste; totalPertes += pertesTot;
+
+    if (pertesTot > 0) {
+      const lignes = [
+        ...pertesMat.map(i => ({ moment: 'Matin', qte: i.qte, raison: i.raison })),
+        ...pertesAp.map(i =>  ({ moment: 'Apm',   qte: i.qte, raison: i.raison }))
+      ];
+      pertesDetail.push({ name: p.name, total: pertesTot, lignes });
+    }
+
+    html += `<tr>
+      <td class="product">${p.name}${productBadge(p)}</td>
+      <td class="num">${prod}</td>
+      <td class="num">${vendu}</td>
+      <td class="num" style="color:${pertesTot>0?'var(--danger)':'var(--text-muted)'};font-weight:${pertesTot>0?'600':'400'}">${pertesTot > 0 ? pertesTot : '—'}</td>
+      <td class="num" style="color:${reste>5?'var(--danger)':reste>0?'var(--accent)':'var(--success)'}">${reste}</td>
+      <td class="num">${taux}%</td>
+      <td style="min-width:80px">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${taux}%;background:${taux>=90?'var(--success)':taux>=60?'var(--accent)':'var(--danger)'}"></div>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  const tauxTotal = totalProd > 0 ? Math.round(totalVendu / totalProd * 100) : 0;
+  html += `<tr class="highlight">
+    <td class="product" style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--accent)">TOTAL</td>
+    <td class="num">${totalProd}</td>
+    <td class="num">${totalVendu}</td>
+    <td class="num" style="color:${totalPertes>0?'var(--danger)':'inherit'}">${totalPertes || '—'}</td>
+    <td class="num">${totalReste}</td>
+    <td class="num">${tauxTotal}%</td>
+    <td><div class="progress-bar"><div class="progress-fill" style="width:${tauxTotal}%"></div></div></td>
+  </tr>`;
+
+  document.getElementById('suivi-tbody').innerHTML = html;
+
+  document.getElementById('suivi-totaux').innerHTML = `
+    <div class="totaux-item">
+      <div class="t-label">Total Produit</div>
+      <div class="t-val" style="color:var(--info)">${totalProd}</div>
+    </div>
+    <div class="totaux-item">
+      <div class="t-label">Total Vendu</div>
+      <div class="t-val" style="color:var(--success)">${totalVendu}</div>
+    </div>
+    <div class="totaux-item">
+      <div class="t-label">Total Reste</div>
+      <div class="t-val" style="color:var(--danger)">${totalReste}</div>
+    </div>
+    <div class="totaux-item">
+      <div class="t-label">Taux de Vente</div>
+      <div class="t-val" style="color:var(--accent)">${tauxTotal}%</div>
+    </div>
+  `;
+
+  const pertesEl = document.getElementById('suivi-pertes-detail');
+  if (pertesEl) {
+    if (pertesDetail.length === 0) {
+      pertesEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">Aucune perte enregistrée.</div>';
+    } else {
+      pertesEl.innerHTML = pertesDetail.map(p => `
+        <div style="margin-bottom:12px;">
+          <div style="font-weight:600;font-size:14px;margin-bottom:6px;">${p.name} <span style="color:var(--danger);font-family:'Space Mono',monospace;font-size:12px;">— ${p.total} unité${p.total>1?'s':''}</span></div>
+          ${p.lignes.map(l => `
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid var(--surface3);">
+              <span style="color:var(--text-muted);font-family:'Space Mono',monospace;font-size:10px;">${l.moment}</span>
+              <span>${l.raison}</span>
+              <span style="font-family:'Space Mono',monospace;color:var(--danger);font-weight:600;">${l.qte}</span>
+            </div>`).join('')}
+        </div>`).join('');
+    }
+  }
+}
+
+function renderVentesInputs() {
+  const products = allProducts();
+  let html = '';
+  products.forEach(p => {
+    const matProd  = matinProductions.find(i => i.name === p.name)?.prod ?? prodMatin(p.pop, p.name);
+    const pmProd   = pmProductions.find(i => i.name === p.name)?.prod ?? prodPM(p.pop, p.name, matProd);
+    const maxProd  = 70;
+    const val      = vendusFull[p.name] || 0;
+    const id       = 'vf-' + p.name.replace(/\s+/g, '_');
+    html += `<div class="vente-row">
+      <span>${p.name}</span>
+      <input type="range" min="0" max="${maxProd}" value="${val}" id="slider-${id}"
+        oninput='document.getElementById("num-${id}").value=this.value==0?"":this.value; setVenduFull(${JSON.stringify(p.name)},this.value);'>
+      <input type="number" inputmode="numeric" min="0" max="${maxProd}" value="${val || ''}" id="num-${id}"
+        oninput='document.getElementById("slider-${id}").value=this.value||0; setVenduFull(${JSON.stringify(p.name)},this.value);'>
+    </div>`;
+  });
+  document.getElementById('ventes-inputs').innerHTML = html;
+}
+
+function setVenduFull(name, val) {
+  vendusFull[name] = parseInt(val) || 0;
+  renderSuivi();
+  saveState(cfg);
+}
+
+function importerVentesMatin() {
+  vendusFull = { ...vendusFull, ...vendusMatin };
+  renderVentesInputs();
+  renderSuivi();
+  saveState(cfg);
+  toast('Ventes du matin importées dans le suivi');
+}
+
+// FIX #4 : exportConfig lit depuis Supabase, plus depuis localStorage
+async function exportConfig() {
+  try {
+    const { data } = await _supabase
+      .from('store_state')
+      .select('state_data')
+      .eq('id', currentStoreId + '-config')
+      .maybeSingle();
+
+    if (!data?.state_data?.cfg) {
+      toast('Aucune configuration trouvée à exporter');
+      return;
+    }
+    const config = JSON.stringify(data.state_data.cfg);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(config).then(() => {
+        toast('Config copiée dans le presse-papier');
+      }).catch(() => {
+        prompt('Copiez cette configuration JSON :', config);
+      });
+    } else {
+      prompt('Copiez cette configuration JSON :', config);
+    }
+  } catch (err) {
+    toast('Erreur export config');
+  }
+}
+
+// FIX #4 : importConfig pousse vers Supabase, plus vers localStorage
+function importConfig() {
+  const json = prompt('Collez la configuration JSON à importer :');
+  if (!json) return;
+  try {
+    const parsed = JSON.parse(json);
+    if (typeof parsed !== 'object' || parsed === null) throw new Error('Format invalide');
+    cfg = { ...defaultConfig, ...parsed };
+    saveConfigData();
+    renderCarte();
+    renderConfig();
+    compute();
+    toast('Configuration importée ✓');
+  } catch (e) {
+    alert('JSON invalide ou mauvais format');
+  }
+}
+
+// ============================================================
+// RENDER CONFIG
+// ============================================================
+function renderConfig() {
+  const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+
+  document.getElementById('cfg-jours-table').innerHTML = `
+    <div style="display:grid; grid-template-columns:72px 1fr 1fr 1fr; gap:8px; margin-bottom:8px;">
+      <div class="cfg-day-header" style="text-align:left;">Jour</div>
+      <div class="cfg-day-header">Matin</div>
+      <div class="cfg-day-header">APM</div>
+      <div class="cfg-day-header">Mult PM</div>
+    </div>
+    ${days.map(d => `
+    <div class="cfg-day-grid">
+      <span style="font-size:12px; font-weight:600;">${d}</span>
+      <input type="number" inputmode="numeric" min="0" max="1" step="0.05" id="ratio-matin-${d}" value="${cfg.ratios[d]?.matin ?? defaultConfig.ratios[d].matin}"
+        oninput="cfg.ratios['${d}'].matin = parseFloat(this.value.replace(',', '.')) || 0; cfg.ratios['${d}'].apm = Math.max(0, 1 - cfg.ratios['${d}'].matin); var el=document.getElementById('ratio-apm-${d}'); if(el) el.value=cfg.ratios['${d}'].apm.toFixed(2); saveConfigData(); renderCarte(); compute()">
+      <input type="number" inputmode="numeric" min="0" max="1" step="0.05" id="ratio-apm-${d}" value="${cfg.ratios[d]?.apm ?? defaultConfig.ratios[d].apm}"
+        oninput="cfg.ratios['${d}'].apm = parseFloat(this.value.replace(',', '.')) || 0; cfg.ratios['${d}'].matin = Math.max(0, 1 - cfg.ratios['${d}'].apm); var el=document.getElementById('ratio-matin-${d}'); if(el) el.value=cfg.ratios['${d}'].matin.toFixed(2); saveConfigData(); renderCarte(); compute()">
+      <input type="number" inputmode="numeric" min="0" max="3" step="0.1" value="${cfg.pmMultiplicateur[d] ?? defaultConfig.pmMultiplicateur[d]}"
+        oninput="cfg.pmMultiplicateur['${d}'] = parseFloat(this.value.replace(',', '.')) || 0; saveConfigData(); renderCarte(); compute()">
+    </div>`).join('')}
+  `;
+
+  document.getElementById('cfg-bonus-paliers').innerHTML = (cfg.bonusPaliers || []).map((palier, i) => `
+    <div class="cfg-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:center;">
+      <label style="margin-bottom:0;white-space:nowrap">Seuil ${i + 1}</label>
+      <input id="cfg-bonus-seuil-${i}" type="number" inputmode="numeric" min="0" step="1" value="${palier.seuil}"
+        onchange="updateBonusPalier(${i})">
+      <label style="margin-bottom:0;white-space:nowrap">Bonus</label>
+      <input id="cfg-bonus-valeur-${i}" type="number" inputmode="numeric" min="0" step="1" value="${palier.valeur}"
+        onchange="updateBonusPalier(${i})">
+    </div>
+  `).join('');
+
+  document.getElementById('cfg-bs').value  = cfg.pop['Best sellers'];
+  document.getElementById('cfg-tp').value  = cfg.pop['Très populaire'];
+  document.getElementById('cfg-pop').value = cfg.pop['Populaire'];
+  document.getElementById('cfg-pp').value  = cfg.pop['Peu populaire'];
+  renderProductManagement();
+  renderRaisonsConfig();
+  renderCfgNext();
+}
+
+// ============================================================
+// CONFIG AVANCÉE — LENDEMAIN
+// ============================================================
+function getTomorrowString() {
+  const t = new Date();
+  t.setDate(t.getDate() + 1);
+  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+function formatDateFR(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return `${JOURS_FR[new Date(y, m-1, d).getDay()]} ${d} ${MOIS_FR[m-1]}`;
+}
+
+function initCfgNext() {
+  cfgNext = structuredClone(cfg);
+  saveCfgNextData();
+  renderCfgNext();
+  toast('Config demain initialisée à partir d\'aujourd\'hui');
+}
+
+function cancelCfgNext() {
+  if (!confirm('Annuler les modifications planifiées pour demain ?')) return;
+  cfgNext = null;
+  if (currentStoreId) _supabase.from('store_state').delete().eq('id', currentStoreId + '-config-next');
+  renderCfgNext();
+  toast('Modifications annulées');
+}
+
+function saveCfgNextData() {
+  if (!_dataLoaded || !cfgNext || !currentStoreId) return;
+  const tomorrow = getTomorrowString();
+  _supabase.from('store_state').upsert({
+    id: currentStoreId + '-config-next',
+    state_data: { cfg: cfgNext, effectiveDate: tomorrow, _savedBy: _sessionId },
+    updated_at: new Date().toISOString()
+  }).then(({ error }) => {
+    if (error) toast('⚠️ Erreur sauvegarde config demain');
+    else { _setSaveStatus('✓ Config demain sauvegardée', 'var(--success)'); _updateNextDiff(); }
+  });
+}
+
+function updateNextBonusPalier(index) {
+  if (!cfgNext) return;
+  const seuilInput  = document.getElementById(`cfg-next-bonus-seuil-${index}`);
+  const valeurInput = document.getElementById(`cfg-next-bonus-valeur-${index}`);
+  if (!seuilInput || !valeurInput) return;
+  cfgNext.bonusPaliers[index] = { seuil: parseInt(seuilInput.value) || 0, valeur: parseInt(valeurInput.value) || 0 };
+  cfgNext.bonusPaliers.sort((a, b) => b.seuil - a.seuil);
+  saveCfgNextData();
+  renderCfgNext();
+}
+
+function _getNextList(type) {
+  if (!cfgNext) return [];
+  if (type === 'fixed')  return cfgNext.fixedProducts  || [];
+  if (type === 'mini')   return cfgNext.miniProducts   || [];
+  if (type === 'season') return cfgNext.seasonProducts || [];
+  if (type === 'odj')    return cfgNext.odjProducts    || [];
+  if (type === 'fraich') return cfgNext.fraichProducts || [];
+  return [];
+}
+function _setNextList(type, list) {
+  if (!cfgNext) return;
+  if (type === 'fixed')  cfgNext.fixedProducts  = list;
+  if (type === 'mini')   cfgNext.miniProducts   = list;
+  if (type === 'season') cfgNext.seasonProducts = list;
+  if (type === 'odj')    cfgNext.odjProducts    = list;
+  if (type === 'fraich') cfgNext.fraichProducts = list;
+}
+
+function setNextProductName(type, index, value) {
+  const trimmed = value.trim();
+  if (!trimmed) { toast('Le nom du produit ne peut pas être vide'); renderCfgNext(); return; }
+  const list = _getNextList(type);
+  list[index].name = trimmed;
+  saveCfgNextData(); renderCfgNext();
+}
+function setNextProductPopularity(type, index, pop) {
+  const list = _getNextList(type);
+  if (!list[index]) return;
+  list[index].pop = pop;
+  saveCfgNextData(); renderCfgNext();
+}
+function setNextMiniCoef(index, val) {
+  const list = _getNextList('mini');
+  if (!list[index]) return;
+  list[index].coef = parseFloat(val) || 1;
+  saveCfgNextData(); renderCfgNext();
+}
+function setNextMiniSacFactor(index, val) {
+  const list = _getNextList('mini');
+  if (!list[index]) return;
+  list[index].sacFactor = Math.min(1, Math.max(0.1, parseFloat(val) || 0.5));
+  saveCfgNextData(); renderCfgNext();
+}
+function setNextSeasonCoef(index, val) {
+  const list = _getNextList('season');
+  if (!list[index]) return;
+  list[index].coef = parseFloat(val) || 1;
+  saveCfgNextData(); renderCfgNext();
+}
+function setNextSeasonSacFactor(index, val) {
+  const list = _getNextList('season');
+  if (!list[index]) return;
+  list[index].sacFactor = Math.min(1, Math.max(0.1, parseFloat(val) || 0.5));
+  saveCfgNextData(); renderCfgNext();
+}
+function removeNextProduct(type, index) {
+  const list = _getNextList(type);
+  if (!list[index]) return;
+  if (!confirm(`Supprimer « ${list[index].name} » de la config demain ?`)) return;
+  list.splice(index, 1);
+  _setNextList(type, list);
+  saveCfgNextData(); renderCfgNext();
+}
+function toggleNextNewProductFields() {
+  const type = document.getElementById('new-next-product-type')?.value;
+  const popRow  = document.getElementById('new-next-product-pop-row');
+  const miniRow = document.getElementById('new-next-product-mini-row');
+  if (!popRow || !miniRow) return;
+  popRow.style.display  = type === 'mini' ? 'none'  : 'block';
+  miniRow.style.display = type === 'mini' ? 'block' : 'none';
+}
+function addNextProduct() {
+  if (!cfgNext) return;
+  const name = document.getElementById('new-next-product-name')?.value.trim();
+  const type = document.getElementById('new-next-product-type')?.value;
+  if (!name) { toast('Nom du produit requis'); return; }
+  const allNextProds = [
+    ...(cfgNext.fixedProducts || []), ...(cfgNext.miniProducts || []),
+    ...(cfgNext.seasonProducts || []), ...(cfgNext.odjProducts || []),
+    ...(cfgNext.fraichProducts || [])
+  ];
+  if (allNextProds.some(p => p.name === name)) { toast('Ce produit existe déjà dans la config demain'); return; }
+  if (type === 'mini') {
+    const coef = parseFloat(document.getElementById('new-next-mini-coef')?.value) || 2;
+    const sacFactor = Math.min(1, Math.max(0.1, parseFloat(document.getElementById('new-next-mini-sacfactor')?.value) || 0.5));
+    if (!cfgNext.miniProducts) cfgNext.miniProducts = [];
+    cfgNext.miniProducts.push({ name, coef, sacFactor });
+  } else {
+    const pop = document.getElementById('new-next-product-popularity')?.value || 'Populaire';
+    const prod = { name, pop };
+    if (type === 'season') { if (!cfgNext.seasonProducts) cfgNext.seasonProducts = []; cfgNext.seasonProducts.push(prod); }
+    else if (type === 'odj') { if (!cfgNext.odjProducts) cfgNext.odjProducts = []; cfgNext.odjProducts.push(prod); }
+    else if (type === 'fraich') { if (!cfgNext.fraichProducts) cfgNext.fraichProducts = []; cfgNext.fraichProducts.push(prod); }
+    else { if (!cfgNext.fixedProducts) cfgNext.fixedProducts = []; cfgNext.fixedProducts.push(prod); }
+  }
+  const nameEl = document.getElementById('new-next-product-name');
+  if (nameEl) nameEl.value = '';
+  saveCfgNextData(); renderCfgNext();
+}
+
+// Retourne la liste des différences entre cfg (aujourd'hui) et cfgNext (demain)
+function getCfgDiffs() {
+  if (!cfgNext) return [];
+  const diffs = [];
+  const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+  for (const key of ['Best sellers','Très populaire','Populaire','Peu populaire']) {
+    const a = cfg.pop[key] ?? 0, b = cfgNext.pop[key] ?? 0;
+    if (a !== b) diffs.push(`${key} : ${a} → ${b}`);
+  }
+  for (const d of days) {
+    const tm = cfg.ratios[d]?.matin ?? 0.75, nm = cfgNext.ratios[d]?.matin ?? 0.75;
+    if (tm !== nm) diffs.push(`${d} matin : ${tm} → ${nm}`);
+    const tp = cfg.pmMultiplicateur[d] ?? 0.5, np = cfgNext.pmMultiplicateur[d] ?? 0.5;
+    if (tp !== np) diffs.push(`${d} mult PM : ${tp} → ${np}`);
+  }
+  const palA = cfg.bonusPaliers || [], palB = cfgNext.bonusPaliers || [];
+  for (let i = 0; i < Math.max(palA.length, palB.length); i++) {
+    if (JSON.stringify(palA[i]) !== JSON.stringify(palB[i])) {
+      diffs.push(`Bonus seuil ${i+1} : ${palA[i]?.seuil ?? '—'}→${palB[i]?.seuil ?? '—'} / val ${palA[i]?.valeur ?? '—'}→${palB[i]?.valeur ?? '—'}`);
+    }
+  }
+  // Produits
+  const allCurr = [...(cfg.fixedProducts||[]),...(cfg.miniProducts||[]),...(cfg.seasonProducts||[]),...(cfg.odjProducts||[]),...(cfg.fraichProducts||[])];
+  const allNext = [...(cfgNext.fixedProducts||[]),...(cfgNext.miniProducts||[]),...(cfgNext.seasonProducts||[]),...(cfgNext.odjProducts||[]),...(cfgNext.fraichProducts||[])];
+  for (const p of allNext) {
+    const cur = allCurr.find(c => c.name === p.name);
+    if (!cur) { diffs.push(`+${p.name}`); continue; }
+    if (cur.pop !== p.pop && p.pop) diffs.push(`${p.name} pop : ${cur.pop} → ${p.pop}`);
+    if (cur.coef !== undefined && p.coef !== undefined && cur.coef !== p.coef) diffs.push(`${p.name} coef : ${cur.coef} → ${p.coef}`);
+    if (cur.sacFactor !== undefined && p.sacFactor !== undefined && cur.sacFactor !== p.sacFactor) diffs.push(`${p.name} sac× : ${cur.sacFactor} → ${p.sacFactor}`);
+  }
+  for (const p of allCurr) {
+    if (!allNext.find(n => n.name === p.name)) diffs.push(`-${p.name}`);
+  }
+  return diffs;
+}
+
+function _renderDiffBadges(diffs) {
+  if (diffs.length === 0) return `<div style="background:rgba(26,158,92,0.1);border:1px solid var(--success);border-radius:var(--radius-sm);padding:10px 14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--success);margin-bottom:12px;">✓ Identique à aujourd'hui</div>`;
+  return `<div style="background:rgba(74,74,170,0.08);border:1.5px solid var(--info);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px;">
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.5px;color:var(--info);text-transform:uppercase;margin-bottom:8px;">● ${diffs.length} modification${diffs.length > 1 ? 's' : ''} planifiée${diffs.length > 1 ? 's' : ''}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+      ${diffs.map(d => `<span style="font-size:10px;font-family:'Space Mono',monospace;background:var(--surface);border:1px solid var(--info);border-radius:4px;padding:3px 8px;color:var(--info);">${d}</span>`).join('')}
+    </div>
+  </div>`;
+}
+
+// Met à jour uniquement le résumé des diffs sans tout re-rendre (appelé depuis saveCfgNextData)
+function _updateNextDiff() {
+  if (!cfgNext) return;
+  const diffs = getCfgDiffs();
+  const tomorrow = getTomorrowString();
+  const titleEl = document.getElementById('cfg-next-title');
+  if (titleEl) titleEl.textContent = `Paramètres — À partir du ${formatDateFR(tomorrow)}${diffs.length ? ' ● ' + diffs.length + ' modif.' : ''}`;
+  const diffEl = document.getElementById('cfg-next-diff');
+  if (diffEl) diffEl.innerHTML = _renderDiffBadges(diffs);
+}
+
+function renderCfgNext() {
+  const container = document.getElementById('cfg-next-content');
+  if (!container) return;
+  const tomorrow = getTomorrowString();
+  const titleEl = document.getElementById('cfg-next-title');
+
+  if (!cfgNext) {
+    if (titleEl) titleEl.textContent = 'Paramètres — À partir de demain';
+    container.innerHTML = `
+      <div style="padding:20px;text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;">
+        <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">
+          Aucune modification planifiée.<br>Les paramètres d'aujourd'hui s'appliqueront demain.
+        </div>
+        <button class="btn btn-primary" onclick="initCfgNext()" style="padding:10px 20px;width:auto;">
+          ✏️ Planifier des modifications pour le ${formatDateFR(tomorrow)}
+        </button>
+      </div>`;
+    return;
+  }
+
+  const diffs = getCfgDiffs();
+  if (titleEl) titleEl.textContent = `Paramètres — À partir du ${formatDateFR(tomorrow)}${diffs.length ? ' ● ' + diffs.length + ' modif.' : ''}`;
+
+  // Helpers de mise en évidence des champs modifiés
+  const hl  = (a, b) => a !== b ? 'border-color:#c87000;background:rgba(200,112,0,0.07);' : '';
+  const note = (a, b) => a !== b ? `<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;letter-spacing:.3px;">Auj.: ${a}</div>` : '';
+
+  const days = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+
+  // Helpers produits
+  const esc = v => String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const allCurrProds = [...(cfg.fixedProducts||[]),...(cfg.miniProducts||[]),...(cfg.seasonProducts||[]),...(cfg.odjProducts||[])];
+  const getProd = name => allCurrProds.find(p => p.name === name);
+  const isNew   = name => !getProd(name);
+  const rowBorder = name => isNew(name) ? 'border-left:3px solid var(--success);padding-left:8px;' : '';
+
+  const _buildNextFixed = () => (cfgNext.fixedProducts||[]).map((p, i) => {
+    const cur = getProd(p.name);
+    const changed = cur && cur.pop !== p.pop;
+    return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:start;${rowBorder(p.name)}">
+      <input type="text" value="${esc(p.name)}" onchange="setNextProductName('fixed',${i},this.value)">
+      <div>
+        <select onchange="setNextProductPopularity('fixed',${i},this.value)" style="${changed?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+          ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop=>`<option value="${pop}"${p.pop===pop?' selected':''}>${pop}</option>`).join('')}
+        </select>
+        ${changed?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.pop}</div>`:''}
+      </div>
+      <button class="btn btn-danger" onclick="removeNextProduct('fixed',${i})" style="padding:7px 10px;">✕</button>
+    </div>`;
+  }).join('');
+
+  const _buildNextMini = () => (cfgNext.miniProducts||[]).map((p, i) => {
+    const cur = getProd(p.name);
+    const coefChanged = cur && cur.coef !== undefined && cur.coef !== p.coef;
+    const sacChanged  = cur && cur.sacFactor !== undefined && cur.sacFactor !== p.sacFactor;
+    return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:10px;align-items:start;${rowBorder(p.name)}">
+      <input type="text" value="${esc(p.name)}" onchange="setNextProductName('mini',${i},this.value)">
+      <div>
+        <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">COEF</label>
+        <input type="number" min="0" step="0.5" value="${p.coef??2}" onchange="setNextMiniCoef(${i},this.value)" style="width:100%;text-align:center;${coefChanged?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+        ${coefChanged?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.coef}</div>`:''}
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">SAC×</label>
+        <input type="number" min="0.1" max="1" step="0.1" value="${p.sacFactor??0.5}" onchange="setNextMiniSacFactor(${i},this.value)" style="width:100%;text-align:center;${sacChanged?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+        ${sacChanged?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.sacFactor}</div>`:''}
+      </div>
+      <button class="btn btn-danger" onclick="removeNextProduct('mini',${i})" style="padding:7px 10px;">✕</button>
+    </div>`;
+  }).join('');
+
+  const _buildNextSeason = () => (cfgNext.seasonProducts||[]).map((p, i) => {
+    const cur = getProd(p.name);
+    if (p.coef !== undefined) {
+      const coefChanged = cur && cur.coef !== undefined && cur.coef !== p.coef;
+      const sacChanged  = cur && cur.sacFactor !== undefined && cur.sacFactor !== p.sacFactor;
+      return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:10px;align-items:start;${rowBorder(p.name)}">
+        <input type="text" value="${esc(p.name)}" onchange="setNextProductName('season',${i},this.value)">
+        <div>
+          <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">COEF</label>
+          <input type="number" min="0" step="0.5" value="${p.coef}" onchange="setNextSeasonCoef(${i},this.value)" style="width:100%;text-align:center;${coefChanged?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+          ${coefChanged?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.coef}</div>`:''}
+        </div>
+        <div>
+          <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">SAC×</label>
+          <input type="number" min="0.1" max="1" step="0.1" value="${p.sacFactor??0.5}" onchange="setNextSeasonSacFactor(${i},this.value)" style="width:100%;text-align:center;${sacChanged?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+          ${sacChanged?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.sacFactor}</div>`:''}
+        </div>
+        <button class="btn btn-danger" onclick="removeNextProduct('season',${i})" style="padding:7px 10px;">✕</button>
+      </div>`;
+    }
+    const changed = cur && cur.pop !== p.pop;
+    return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:start;${rowBorder(p.name)}">
+      <input type="text" value="${esc(p.name)}" onchange="setNextProductName('season',${i},this.value)">
+      <div>
+        <select onchange="setNextProductPopularity('season',${i},this.value)" style="${changed?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+          ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop=>`<option value="${pop}"${p.pop===pop?' selected':''}>${pop}</option>`).join('')}
+        </select>
+        ${changed?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.pop}</div>`:''}
+      </div>
+      <button class="btn btn-danger" onclick="removeNextProduct('season',${i})" style="padding:7px 10px;">✕</button>
+    </div>`;
+  }).join('');
+
+  const _buildNextOdj = () => (cfgNext.odjProducts||[]).map((p, i) => {
+    const cur = getProd(p.name);
+    const changed = cur && cur.pop !== p.pop;
+    return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:start;${rowBorder(p.name)}">
+      <input type="text" value="${esc(p.name)}" onchange="setNextProductName('odj',${i},this.value)">
+      <div>
+        <select onchange="setNextProductPopularity('odj',${i},this.value)" style="${changed?'border-color:#c87000;background:rgba(200,112,0,0.07);':''}">
+          ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop=>`<option value="${pop}"${p.pop===pop?' selected':''}>${pop}</option>`).join('')}
+        </select>
+        ${changed?`<div style="font-size:9px;color:#c87000;font-family:'Space Mono',monospace;margin-top:2px;">Auj.: ${cur.pop}</div>`:''}
+      </div>
+      <button class="btn btn-danger" onclick="removeNextProduct('odj',${i})" style="padding:7px 10px;">✕</button>
+    </div>`;
+  }).join('');
+
+  const prodSectionHtml = `
+    <div class="card" style="border:1.5px solid var(--info);">
+      <div class="card-title"><div class="dot" style="background:var(--info)"></div>Gestion des produits</div>
+      <p style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">
+        Bordure verte = nouveau produit. Bordure orange = valeur modifiée (la valeur actuelle est affichée en dessous).
+      </p>
+
+      <div style="margin-bottom:10px;font-weight:600;">🔒 Produits fixes</div>
+      ${_buildNextFixed() || '<div style="color:var(--text-muted);font-size:12px;margin-bottom:8px;">Aucun produit fixe.</div>'}
+
+      <div style="margin:16px 0 10px;font-weight:600;">🟣 Mini Lunches</div>
+      <div style="font-size:11px;color:var(--text-muted);font-family:\'Space Mono\',monospace;margin-bottom:8px;">COEF = unités / 1000€ CA — SAC× = fraction d'un sac par unité</div>
+      ${_buildNextMini() || '<div style="color:var(--text-muted);font-size:12px;margin-bottom:8px;">Aucun mini lunch.</div>'}
+
+      <div style="margin:16px 0 10px;font-weight:600;">🥗 Produits de saison</div>
+      ${_buildNextSeason() || '<div style="color:var(--text-muted);font-size:12px;margin-bottom:8px;">Aucun produit saisonnier.</div>'}
+
+      <div style="margin:16px 0 10px;font-weight:600;">⭐ Produits ODJ</div>
+      ${_buildNextOdj() || '<div style="color:var(--text-muted);font-size:12px;margin-bottom:8px;">Aucun produit ODJ.</div>'}
+
+      <div style="margin-top:18px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="font-weight:600;margin-bottom:10px;">Ajouter un produit</div>
+        <div class="cfg-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center;margin-bottom:8px;">
+          <input id="new-next-product-name" type="text" placeholder="Nom du produit" style="width:100%">
+          <select id="new-next-product-type" style="width:100%" onchange="toggleNextNewProductFields()">
+            <option value="fixed">🔒 Fixe</option>
+            <option value="mini">🟣 Mini Lunch</option>
+            <option value="season">🥗 Saison</option>
+            <option value="odj">⭐ ODJ</option>
+          </select>
+        </div>
+        <div id="new-next-product-pop-row" style="margin-bottom:8px;">
+          <select id="new-next-product-popularity" style="width:100%">
+            ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop=>`<option value="${pop}">${pop}</option>`).join('')}
+          </select>
+        </div>
+        <div id="new-next-product-mini-row" style="display:none;margin-bottom:8px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:11px;color:var(--text-muted);font-family:\'Space Mono\',monospace;display:block;margin-bottom:4px;">COEF (/ 1000€ CA)</label>
+              <input id="new-next-mini-coef" type="number" min="0" step="0.5" value="2" style="width:100%">
+            </div>
+            <div>
+              <label style="font-size:11px;color:var(--text-muted);font-family:\'Space Mono\',monospace;display:block;margin-bottom:4px;">FACTEUR SAC (0.1–1)</label>
+              <input id="new-next-mini-sacfactor" type="number" min="0.1" max="1" step="0.1" value="0.5" style="width:100%">
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:4px;" onclick="addNextProduct()">Ajouter</button>
+      </div>
+    </div>`;
+
+  container.innerHTML = `
+    <div id="cfg-next-diff">${_renderDiffBadges(diffs)}</div>
+
+    <!-- POPULARITÉ -->
+    <div class="card" style="border:1.5px solid var(--info);">
+      <div class="card-title"><div class="dot" style="background:var(--info)"></div>Popularité — Coefs de production</div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(key => {
+          const a = cfg.pop[key] ?? 0, b = cfgNext.pop[key] ?? 0;
+          return `<div class="cfg-row">
+            <label>${key}</label>
+            <div style="text-align:right;">
+              <input type="number" inputmode="numeric" min="0" value="${b}"
+                style="width:90px;flex-shrink:0;text-align:center;${hl(a,b)}"
+                oninput="cfgNext.pop['${key}']=parseInt(this.value)||0; saveCfgNextData();">
+              ${note(a,b)}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- RÉPARTITION PAR JOUR -->
+    <div class="card" style="border:1.5px solid var(--info);">
+      <div class="card-title"><div class="dot" style="background:var(--info)"></div>Répartition par jour</div>
+      <p style="font-size:10px;color:var(--text-muted);margin-bottom:12px;">Matin = part produite le matin. Mult PM = facteur de projection après-midi.</p>
+      <div style="display:grid;grid-template-columns:72px 1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="cfg-day-header" style="text-align:left;">Jour</div>
+        <div class="cfg-day-header">Matin</div>
+        <div class="cfg-day-header">APM</div>
+        <div class="cfg-day-header">Mult PM</div>
+      </div>
+      ${days.map(d => {
+        const tm = cfg.ratios[d]?.matin ?? 0.75, nm = cfgNext.ratios[d]?.matin ?? 0.75;
+        const tp = cfg.pmMultiplicateur[d] ?? 0.5, np = cfgNext.pmMultiplicateur[d] ?? 0.5;
+        return `<div class="cfg-day-grid">
+          <span style="font-size:12px;font-weight:600;">${d}</span>
+          <div>
+            <input type="number" inputmode="numeric" min="0" max="1" step="0.05" value="${nm}" style="${hl(tm,nm)}"
+              oninput="cfgNext.ratios['${d}'].matin=parseFloat(this.value.replace(',','.'))||0; cfgNext.ratios['${d}'].apm=Math.max(0,1-cfgNext.ratios['${d}'].matin); saveCfgNextData();">
+            ${note(tm,nm)}
+          </div>
+          <input type="number" inputmode="numeric" min="0" max="1" step="0.05" value="${(cfgNext.ratios[d]?.apm ?? 0.25).toFixed(2)}" readonly style="background:var(--surface3);color:var(--text-muted);">
+          <div>
+            <input type="number" inputmode="numeric" min="0" max="3" step="0.1" value="${np}" style="${hl(tp,np)}"
+              oninput="cfgNext.pmMultiplicateur['${d}']=parseFloat(this.value.replace(',','.'))||0; saveCfgNextData();">
+            ${note(tp,np)}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- BONUS D'APRÈS-MIDI -->
+    <div class="card" style="border:1.5px solid var(--info);">
+      <div class="card-title"><div class="dot" style="background:var(--info)"></div>Bonus d'après-midi</div>
+      <p style="font-size:10px;color:var(--text-muted);margin-bottom:10px;">Bonus selon le volume produit le matin.</p>
+      ${(cfgNext.bonusPaliers || []).map((palier, i) => {
+        const todayPalier = cfg.bonusPaliers?.[i] || {};
+        return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:start;">
+          <label style="margin-bottom:0;white-space:nowrap">Seuil ${i+1}</label>
+          <div>
+            <input id="cfg-next-bonus-seuil-${i}" type="number" inputmode="numeric" min="0" step="1" value="${palier.seuil}"
+              style="${hl(todayPalier.seuil, palier.seuil)}" onchange="updateNextBonusPalier(${i})">
+            ${note(todayPalier.seuil, palier.seuil)}
+          </div>
+          <label style="margin-bottom:0;white-space:nowrap">Bonus</label>
+          <div>
+            <input id="cfg-next-bonus-valeur-${i}" type="number" inputmode="numeric" min="0" step="1" value="${palier.valeur}"
+              style="${hl(todayPalier.valeur, palier.valeur)}" onchange="updateNextBonusPalier(${i})">
+            ${note(todayPalier.valeur, palier.valeur)}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- GESTION DES PRODUITS -->
+    ${prodSectionHtml}
+
+    <button class="btn btn-danger" onclick="cancelCfgNext()" style="width:100%;margin-bottom:14px;">
+      🗑️ Annuler les modifications planifiées
+    </button>`;
+}
+
+function saveConfigInline() {
+  cfg.pop['Best sellers']   = parseInt(document.getElementById('cfg-bs').value)  || 11;
+  cfg.pop['Très populaire'] = parseInt(document.getElementById('cfg-tp').value)  || 9;
+  cfg.pop['Populaire']      = parseInt(document.getElementById('cfg-pop').value) || 5;
+  cfg.pop['Peu populaire']  = parseInt(document.getElementById('cfg-pp').value)  || 2;
+  saveConfigData();
+  renderCarte();
+  compute();
+}
+
+function renderProductManagement() {
+  const fixedHtml = cfg.fixedProducts.map((p, i) => `
+    <div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;">
+      <input type="text" value="${p.name.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" onchange="setProductName('fixed', ${i}, this.value)">
+      <select onchange="setProductPopularity('fixed', ${i}, this.value)">
+        ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop => `<option value='${pop}' ${p.pop===pop?'selected':''}>${pop}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger" onclick="removeProduct('fixed', ${i})" style="padding:7px 10px;">Supprimer</button>
+    </div>`).join('');
+
+  const seasonHtml = cfg.seasonProducts.map((p, i) => {
+    const esc = v => v.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    if (p.coef !== undefined) {
+      return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:10px;align-items:center;">
+        <input type="text" value="${esc(p.name)}" onchange="setProductName('season', ${i}, this.value)">
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">COEF</label>
+          <input type="number" min="0" step="0.5" value="${p.coef}" onchange="setSeasonCoef(${i}, this.value)" style="width:100%;text-align:center;">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;">
+          <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">SAC×</label>
+          <input type="number" min="0.1" max="1" step="0.1" value="${p.sacFactor ?? 0.5}" onchange="setSeasonSacFactor(${i}, this.value)" style="width:100%;text-align:center;">
+        </div>
+        <button class="btn btn-danger" onclick="removeProduct('season', ${i})" style="padding:7px 10px;">Supprimer</button>
+      </div>`;
+    }
+    return `<div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;">
+      <input type="text" value="${esc(p.name)}" onchange="setProductName('season', ${i}, this.value)">
+      <select onchange="setProductPopularity('season', ${i}, this.value)">
+        ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop => `<option value='${pop}' ${p.pop===pop?'selected':''}>${pop}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger" onclick="removeProduct('season', ${i})" style="padding:7px 10px;">Supprimer</button>
+    </div>`;
+  }).join('');
+
+  const odjHtml = (cfg.odjProducts || []).map((p, i) => `
+    <div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;">
+      <input type="text" value="${p.name.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" onchange="setProductName('odj', ${i}, this.value)">
+      <select onchange="setProductPopularity('odj', ${i}, this.value)">
+        ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop => `<option value='${pop}' ${p.pop===pop?'selected':''}>${pop}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger" onclick="removeProduct('odj', ${i})" style="padding:7px 10px;">Supprimer</button>
+    </div>`).join('');
+
+  const miniHtml = (cfg.miniProducts || []).map((p, i) => `
+    <div class="cfg-row" style="display:grid;grid-template-columns:1fr 80px 80px auto;gap:10px;align-items:center;">
+      <input type="text" value="${p.name.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" onchange="setProductName('mini', ${i}, this.value)">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">COEF</label>
+        <input type="number" min="0" step="0.5" value="${p.coef ?? 2}" onchange="setMiniCoef(${i}, this.value)" style="width:100%;text-align:center;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <label style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;">SAC×</label>
+        <input type="number" min="0.1" max="1" step="0.1" value="${p.sacFactor ?? 0.5}" onchange="setMiniSacFactor(${i}, this.value)" style="width:100%;text-align:center;">
+      </div>
+      <button class="btn btn-danger" onclick="removeProduct('mini', ${i})" style="padding:7px 10px;">Supprimer</button>
+    </div>`).join('');
+
+  const fraichHtml = (cfg.fraichProducts || []).map((p, i) => `
+    <div class="cfg-row" style="display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;">
+      <input type="text" value="${p.name.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" onchange="setProductName('fraich', ${i}, this.value)">
+      <select onchange="setProductPopularity('fraich', ${i}, this.value)">
+        ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop => `<option value='${pop}' ${p.pop===pop?'selected':''}>${pop}</option>`).join('')}
+      </select>
+      <button class="btn btn-danger" onclick="removeProduct('fraich', ${i})" style="padding:7px 10px;">Supprimer</button>
+    </div>`).join('');
+
+  document.getElementById('cfg-product-management').innerHTML = `
+    <div style="margin-bottom:12px; font-size:12px; color:var(--text-muted);">Ajoute ou supprime un produit, la carte et les calculs se mettent à jour automatiquement.</div>
+    <div style="margin-bottom:10px; font-weight:600;">🔒 Produits fixes</div>
+    ${fixedHtml || '<div style="color:var(--text-muted)">Aucun produit fixe.</div>'}
+    <div style="margin:16px 0 10px; font-weight:600;">🟣 Mini Lunches</div>
+    <div style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;margin-bottom:8px;">COEF = unités / 1000€ CA — SAC× = fraction d'un sac par unité</div>
+    <div class="cfg-row" style="align-items:center;margin-bottom:10px;">
+      <label style="margin-bottom:0;font-size:13px;font-weight:500;">Mercredi matin ×2 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">(production APM bloquée)</span></label>
+      <input type="checkbox" id="cfg-mercredi-mini" ${cfg.mercrediMiniDouble ? 'checked' : ''}
+        onchange="cfg.mercrediMiniDouble = this.checked; saveConfigData(); compute();"
+        style="width:22px;height:22px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">
+    </div>
+    ${miniHtml || '<div style="color:var(--text-muted)">Aucun mini lunch.</div>'}
+    <div style="margin:16px 0 10px; font-weight:600;">🥗 Produits de saison</div>
+    ${seasonHtml || '<div style="color:var(--text-muted)">Aucun produit saisonnier.</div>'}
+    <div style="margin:16px 0 10px; font-weight:600;">⭐ Produits ODJ</div>
+    ${odjHtml || '<div style="color:var(--text-muted)">Aucun produit ODJ.</div>'}
+    <div style="margin:16px 0 10px; font-weight:600; color:#0891b2;">🧊 Produits Fraîch</div>
+    <div style="font-size:11px;color:#0891b2;font-family:'Space Mono',monospace;margin-bottom:8px;background:rgba(8,145,178,.08);border:1px solid rgba(8,145,178,.2);border-radius:6px;padding:8px 10px;">Sac fraîcheur (54 u) · Plafond journalier : ${FRAICH_DAILY_CAP} unités</div>
+    ${fraichHtml || '<div style="color:var(--text-muted)">Aucun produit fraîch.</div>'}
+    <div style="margin-top:18px; padding-top:12px; border-top:1px solid var(--border);">
+      <div style="font-weight:600; margin-bottom:10px;">Ajouter un produit</div>
+      <div class="cfg-row" style="display:grid;grid-template-columns:1fr 1fr; gap:10px; align-items:center;margin-bottom:8px;">
+        <input id="new-product-name" type="text" placeholder="Nom du produit" style="width:100%" />
+        <select id="new-product-type" style="width:100%" onchange="toggleNewProductFields()">
+          <option value="fixed">🔒 Fixe</option>
+          <option value="mini">🟣 Mini Lunch</option>
+          <option value="season">🥗 Saison</option>
+          <option value="odj">⭐ ODJ</option>
+          <option value="fraich">🧊 Fraîch</option>
+        </select>
+      </div>
+      <div id="new-product-pop-row" style="margin-bottom:8px;">
+        <select id="new-product-popularity" style="width:100%">
+          ${['Best sellers','Très populaire','Populaire','Peu populaire'].map(pop => `<option value='${pop}'>${pop}</option>`).join('')}
+        </select>
+      </div>
+      <div id="new-product-mini-row" style="display:none;margin-bottom:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;display:block;margin-bottom:4px;">COEF (/ 1000€ CA)</label>
+            <input id="new-mini-coef" type="number" min="0" step="0.5" value="2" style="width:100%">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;display:block;margin-bottom:4px;">FACTEUR SAC (0.1–1)</label>
+            <input id="new-mini-sacfactor" type="number" min="0.1" max="1" step="0.1" value="0.5" style="width:100%">
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:4px;" onclick="addProduct()">Ajouter</button>
+    </div>
+  `;
+}
+
+function renderRaisonsConfig() {
+  const raisons = cfg.raisonsPerte || [];
+  document.getElementById('liste-raisons-config').innerHTML = raisons.length
+    ? raisons.map((raison, i) => `<div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+        <span>${raison}</span>
+        <button class="btn btn-danger" style="padding:6px 10px;" onclick="removeRaison(${i})">✕</button>
+      </div>`).join('')
+    : '<div style="color:var(--text-muted)">Aucune raison de perte définie.</div>';
+}
+
+function populatePerteSelectors() {
+  const produitSelect = document.getElementById('perte-produit');
+  const raisonSelect  = document.getElementById('perte-raison');
+  if (!produitSelect || !raisonSelect) return;
+
+  produitSelect.innerHTML = allProducts().map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+  raisonSelect.innerHTML  = (cfg.raisonsPerte || []).map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+function addRaison() {
+  const input = document.getElementById('new-raison');
+  if (!input) return;
+  const value = input.value.trim();
+  if (!value) return toast('Entrez une raison valide');
+  if (!cfg.raisonsPerte) cfg.raisonsPerte = [];
+  if (cfg.raisonsPerte.includes(value)) return toast('Cette raison existe déjà');
+  cfg.raisonsPerte.push(value);
+  saveConfigData();
+  renderConfig();
+  populatePerteSelectors();
+  input.value = '';
+  toast('Raison ajoutée');
+}
+
+function removeRaison(index) {
+  if (!Array.isArray(cfg.raisonsPerte) || cfg.raisonsPerte[index] == null) return;
+  cfg.raisonsPerte.splice(index, 1);
+  saveConfigData();
+  renderConfig();
+  populatePerteSelectors();
+}
+
+function ajouterPerte() {
+  const prod   = document.getElementById('perte-produit')?.value;
+  const qte    = parseInt(document.getElementById('perte-qte')?.value, 10);
+  const raison = document.getElementById('perte-raison')?.value;
+  const moment = document.getElementById('perte-moment')?.value;
+
+  if (!prod || !qte || qte <= 0) return toast('Erreur de saisie');
+
+  const cible = moment === 'matin' ? pertesMatin : pertesApm;
+  if (!cible[prod]) cible[prod] = [];
+  cible[prod].push({ qte, raison });
+  compute();
+  toast('Perte enregistrée');
+}
+
+function renderPertes() {
+  populatePerteSelectors();
+  const cont = document.getElementById('liste-pertes-jour');
+  if (!cont) return;
+
+  let html = '<strong>Pertes du jour :</strong><br>';
+  let count = 0;
+
+  [pertesMatin, pertesApm].forEach((list, idx) => {
+    const label = idx === 0 ? 'Matin' : 'Apm';
+    for (let prod in list) {
+      list[prod].forEach((item, i) => {
+        count += 1;
+        const escapedName = prod.replace(/'/g, "\\'");
+        html += `• ${label} - ${prod} : ${item.qte} (${item.raison}) <span onclick="supprimerPerte('${label}', '${escapedName}', ${i})" style="color:red; cursor:pointer"> ✕</span><br>`;
+      });
+    }
+  });
+
+  if (!count) html += '<span style="color:var(--text-muted)">Aucune perte enregistrée.</span>';
+  cont.innerHTML = html;
+}
+
+function supprimerPerte(moment, prod, index) {
+  const cible = moment.toLowerCase() === 'matin' ? pertesMatin : pertesApm;
+  if (!cible[prod] || !Array.isArray(cible[prod]) || typeof index !== 'number') return;
+  cible[prod].splice(index, 1);
+  if (cible[prod].length === 0) delete cible[prod];
+  compute();
+}
+
+function setProductName(type, index, value) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    toast('Le nom du produit ne peut pas être vide');
+    renderConfig();
+    return;
+  }
+
+  if (allProducts().some((p, i) => p.name === trimmed && !(type === 'fixed' ? i === index : i === cfg.fixedProducts.length + index))) {
+    toast('Ce nom de produit existe déjà');
+    renderConfig();
+    return;
+  }
+
+  const list = type === 'season' ? cfg.seasonProducts : type === 'odj' ? (cfg.odjProducts || []) : type === 'mini' ? (cfg.miniProducts || []) : type === 'fraich' ? (cfg.fraichProducts || []) : cfg.fixedProducts;
+  list[index].name = trimmed;
+  saveConfigData();
+  renderCarte();
+  renderConfig();
+  compute();
+}
+
+function setProductPopularity(type, index, pop) {
+  const list = type === 'season' ? cfg.seasonProducts : type === 'odj' ? (cfg.odjProducts || []) : type === 'mini' ? (cfg.miniProducts || []) : type === 'fraich' ? (cfg.fraichProducts || []) : cfg.fixedProducts;
+  if (!list[index]) return;
+  list[index].pop = pop;
+  saveConfigData();
+  renderCarte();
+  renderConfig();
+  compute();
+}
+
+function setMiniCoef(index, val) {
+  if (!cfg.miniProducts || !cfg.miniProducts[index]) return;
+  cfg.miniProducts[index].coef = parseFloat(val) || 1;
+  saveConfigData();
+  renderCarte();
+  compute();
+}
+
+function setMiniSacFactor(index, val) {
+  if (!cfg.miniProducts || !cfg.miniProducts[index]) return;
+  cfg.miniProducts[index].sacFactor = Math.min(1, Math.max(0.1, parseFloat(val) || 0.5));
+  saveConfigData();
+  compute();
+}
+
+function setSeasonCoef(index, val) {
+  if (!cfg.seasonProducts[index]) return;
+  cfg.seasonProducts[index].coef = parseFloat(val) || 1;
+  saveConfigData();
+  renderCarte();
+  compute();
+}
+
+function setSeasonSacFactor(index, val) {
+  if (!cfg.seasonProducts[index]) return;
+  cfg.seasonProducts[index].sacFactor = Math.min(1, Math.max(0.1, parseFloat(val) || 0.5));
+  saveConfigData();
+  compute();
+}
+
+function toggleNewProductFields() {
+  const type = document.getElementById('new-product-type')?.value;
+  const popRow = document.getElementById('new-product-pop-row');
+  const miniRow = document.getElementById('new-product-mini-row');
+  if (!popRow || !miniRow) return;
+  popRow.style.display = type === 'mini' ? 'none' : 'block';
+  miniRow.style.display = type === 'mini' ? 'block' : 'none';
+}
+
+function removeProduct(type, index) {
+  const list = type === 'season' ? cfg.seasonProducts : type === 'odj' ? (cfg.odjProducts || []) : type === 'mini' ? (cfg.miniProducts || []) : type === 'fraich' ? (cfg.fraichProducts || []) : cfg.fixedProducts;
+  if (!list[index]) return;
+  if (!confirm(`Supprimer le produit « ${list[index].name} » ?`)) return;
+  const removedName = list[index].name;
+  list.splice(index, 1);
+  deleteProductData(removedName);
+  saveConfigData();
+  renderCarte();
+  renderConfig();
+  compute();
+}
+
+function addProduct() {
+  const name = document.getElementById('new-product-name').value.trim();
+  const type = document.getElementById('new-product-type').value;
+  if (!name) { toast('Nom du produit requis'); return; }
+  if (allProducts().some(p => p.name === name)) { toast('Ce produit existe déjà'); return; }
+
+  if (type === 'mini') {
+    const coef = parseFloat(document.getElementById('new-mini-coef')?.value) || 2;
+    const sacFactor = Math.min(1, Math.max(0.1, parseFloat(document.getElementById('new-mini-sacfactor')?.value) || 0.5));
+    if (!cfg.miniProducts) cfg.miniProducts = [];
+    cfg.miniProducts.push({ name, coef, sacFactor });
+  } else {
+    const pop = document.getElementById('new-product-popularity').value;
+    const nouveau = { name, pop };
+    if (type === 'season') {
+      cfg.seasonProducts.push(nouveau);
+    } else if (type === 'odj') {
+      if (!cfg.odjProducts) cfg.odjProducts = [];
+      cfg.odjProducts.push(nouveau);
+    } else if (type === 'fraich') {
+      if (!cfg.fraichProducts) cfg.fraichProducts = [];
+      cfg.fraichProducts.push(nouveau);
+    } else {
+      cfg.fixedProducts.push(nouveau);
+    }
+  }
+  document.getElementById('new-product-name').value = '';
+  saveConfigData();
+  renderCarte();
+  renderConfig();
+  compute();
+}
+
+function deleteProductData(name) {
+  if (Object.prototype.hasOwnProperty.call(resteHier, name))   delete resteHier[name];
+  if (Object.prototype.hasOwnProperty.call(vendusMatin, name)) delete vendusMatin[name];
+  if (Object.prototype.hasOwnProperty.call(vendusFull, name))  delete vendusFull[name];
+  saveState(cfg);
+}
+
+function updateBonusPalier(index) {
+  const seuilInput  = document.getElementById(`cfg-bonus-seuil-${index}`);
+  const valeurInput = document.getElementById(`cfg-bonus-valeur-${index}`);
+  if (!seuilInput || !valeurInput) return;
+
+  const seuil  = parseInt(seuilInput.value)  || 0;
+  const valeur = parseInt(valeurInput.value) || 0;
+
+  cfg.bonusPaliers[index] = { seuil, valeur };
+  cfg.bonusPaliers.sort((a, b) => b.seuil - a.seuil);
+  saveConfigData();
+  renderConfig();
+  compute();
+}
+
+// ============================================================
+// HISTORIQUE
+// ============================================================
+async function archiverJournee() {
+  const date = document.getElementById('sel-date')?.value;
+  if (!date) { toast('⚠️ Sélectionnez une date avant d\'archiver'); return; }
+
+  const products = allProducts();
+  const lignes = products.map(p => {
+    const matProd = matinProductions.find(i => i.name === p.name)?.prod ?? prodMatin(p.pop, p.name);
+    const pmProd  = pmProductions.find(i => i.name === p.name)?.prod ?? prodPM(p.pop, p.name, matProd);
+    const prod    = matProd + pmProd;
+    const vendu   = vendusFull[p.name] || 0;
+    const pertesMat  = (pertesMatin[p.name] || []).map(i => ({ moment: 'Matin', qte: i.qte, raison: i.raison }));
+    const pertesAp   = (pertesApm[p.name]   || []).map(i => ({ moment: 'Apm',   qte: i.qte, raison: i.raison }));
+    const pertesLignes = [...pertesMat, ...pertesAp];
+    const pertesTotal  = pertesLignes.reduce((s, i) => s + i.qte, 0);
+    const reste   = Math.max(0, prod - vendu - pertesTotal);
+    const taux    = prod > 0 ? Math.round(vendu / prod * 100) : 0;
+    return { name: p.name, pop: p.pop, prod, vendu, reste, taux, pertes: pertesTotal, pertesDetail: pertesLignes };
+  });
+
+  const totalProd  = lignes.reduce((s, l) => s + l.prod, 0);
+  const totalVendu = lignes.reduce((s, l) => s + l.vendu, 0);
+  const totalReste = lignes.reduce((s, l) => s + l.reste, 0);
+  const tauxTotal  = totalProd > 0 ? Math.round(totalVendu / totalProd * 100) : 0;
+
+  const [y, m, d] = date.split('-').map(Number);
+  const entry = {
+    date,
+    jour: JOURS_FR[new Date(y, m - 1, d).getDay()],
+    ca: parseFloat(document.getElementById('ca-prevu')?.value) || 0,
+    lignes,
+    totaux: { totalProd, totalVendu, totalReste, tauxTotal },
+    archived_at: new Date().toISOString(),
+    archived_by: sessionStorage.getItem('userName') || 'Inconnu'
+  };
+
+  try {
+    const { error } = await _supabase.from('historique').upsert({ id: `${currentStoreId}-${date}`, date, store_id: currentStoreId, data: entry });
+    if (error) { toast('⚠️ Erreur archivage : ' + error.message); return; }
+    toast('📅 Journée archivée ✓');
+  } catch (err) {
+    toast('⚠️ Erreur réseau lors de l\'archivage');
+  }
+}
+
+async function loadHistorique() {
+  const el = document.getElementById('historique-list');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-family:\'Space Mono\',monospace;font-size:12px;">Chargement…</div>';
+
+  try {
+    const { data, error } = await _supabase
+      .from('historique')
+      .select('id, date, data')
+      .eq('store_id', currentStoreId)
+      .order('date', { ascending: false })
+      .limit(60);
+
+    if (error) { el.innerHTML = `<div style="padding:20px;color:var(--danger);font-size:13px;">Erreur : ${error.message}</div>`; return; }
+    if (!data || data.length === 0) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);font-family:\'Space Mono\',monospace;font-size:12px;">Aucun bilan archivé.<br>Utilisez le bouton dans Suivi.</div>';
+      return;
+    }
+    renderHistorique(data);
+  } catch (err) {
+    el.innerHTML = '<div style="padding:20px;color:var(--danger);font-size:13px;">Erreur réseau</div>';
+  }
+}
+
+function renderHistorique(entries) {
+  const el = document.getElementById('historique-list');
+  if (!el) return;
+
+  let html = '';
+  entries.forEach(entry => {
+    const d = entry.data;
+    if (!d) return;
+    const [y, mo, day] = entry.date.split('-').map(Number);
+    const dateLabel = `${d.jour} ${day} ${MOIS_FR[mo - 1]} ${y}`;
+    const t = d.totaux || {};
+    const lignes = d.lignes || [];
+    const tauxColor = t.tauxTotal >= 85 ? 'var(--success)' : t.tauxTotal >= 60 ? 'var(--accent)' : 'var(--danger)';
+
+    html += `
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent)">${dateLabel}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;">
+            ${d.archived_by ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);background:var(--surface2);border-radius:4px;padding:2px 6px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${d.archived_by}</span>` : ''}
+            ${d.ca ? `<span style="font-size:10px;font-family:'Space Mono',monospace;color:var(--text-muted);">CA PRÉVU ${d.ca.toLocaleString('fr-FR')} €</span>` : ''}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="text-align:center;background:var(--surface2);border-radius:8px;padding:6px 12px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--info)">${t.totalProd ?? '—'}</div>
+            <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--text-muted)">PRODUIT</div>
+          </div>
+          <div style="text-align:center;background:var(--surface2);border-radius:8px;padding:6px 12px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--success)">${t.totalVendu ?? '—'}</div>
+            <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--text-muted)">VENDU</div>
+          </div>
+          <div style="text-align:center;background:var(--surface2);border-radius:8px;padding:6px 12px;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${tauxColor}">${t.tauxTotal ?? '—'}%</div>
+            <div style="font-size:9px;font-family:'Space Mono',monospace;color:var(--text-muted)">TAUX</div>
+          </div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);">
+              <th style="text-align:left;padding:6px 4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:.5px;text-transform:uppercase;">Produit</th>
+              <th style="text-align:right;padding:6px 4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:.5px;text-transform:uppercase;">Prod.</th>
+              <th style="text-align:right;padding:6px 4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:.5px;text-transform:uppercase;">Vendu</th>
+              <th style="text-align:right;padding:6px 4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:.5px;text-transform:uppercase;">Pertes</th>
+              <th style="text-align:right;padding:6px 4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:.5px;text-transform:uppercase;">Reste</th>
+              <th style="text-align:right;padding:6px 4px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:.5px;text-transform:uppercase;">Taux</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lignes.map(l => {
+              const tc = l.taux >= 85 ? 'var(--success)' : l.taux >= 60 ? 'var(--accent)' : 'var(--danger)';
+              return `<tr style="border-bottom:1px solid var(--surface3);">
+                <td style="padding:7px 4px;font-weight:500;">${l.name}</td>
+                <td style="padding:7px 4px;text-align:right;font-family:'Space Mono',monospace;">${l.prod}</td>
+                <td style="padding:7px 4px;text-align:right;font-family:'Space Mono',monospace;color:var(--success);">${l.vendu}</td>
+                <td style="padding:7px 4px;text-align:right;font-family:'Space Mono',monospace;color:${l.pertes>0?'var(--danger)':'var(--text-muted)'};">${l.pertes > 0 ? l.pertes : '—'}</td>
+                <td style="padding:7px 4px;text-align:right;font-family:'Space Mono',monospace;color:var(--danger);">${l.reste}</td>
+                <td style="padding:7px 4px;text-align:right;font-family:'Space Mono',monospace;color:${tc};font-weight:600;">${l.taux}%</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      ${(() => {
+        const avecPertes = lignes.filter(l => l.pertesDetail && l.pertesDetail.length > 0);
+        if (avecPertes.length === 0) return '';
+        return `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">Détail des pertes</div>
+          ${avecPertes.map(l => `
+            <div style="margin-bottom:10px;">
+              <div style="font-weight:600;font-size:13px;margin-bottom:4px;">${l.name} <span style="color:var(--danger);font-family:'Space Mono',monospace;font-size:11px;">— ${l.pertes} unité${l.pertes>1?'s':''}</span></div>
+              ${l.pertesDetail.map(p => `
+                <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid var(--surface3);">
+                  <span style="color:var(--text-muted);font-family:'Space Mono',monospace;font-size:10px;min-width:40px;">${p.moment}</span>
+                  <span style="flex:1;padding:0 8px;">${p.raison}</span>
+                  <span style="font-family:'Space Mono',monospace;color:var(--danger);font-weight:600;">${p.qte}</span>
+                </div>`).join('')}
+            </div>`).join('')}
+        </div>`;
+      })()}
+    </div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tabId) {
+  document.querySelectorAll('.page').forEach(page => {
+    page.style.display = 'none';
+    page.classList.remove('active');
+  });
+
+  const target = document.getElementById('page-' + tabId);
+  if (target) {
+    target.style.display = 'block';
+    target.classList.add('active');
+  }
+
+  if (tabId === 'production') {
+    renderPertes();
+    populatePerteSelectors();
+  }
+
+  if (tabId === 'carte' || tabId === 'config') {
+    renderCarte();
+    renderConfig();
+  }
+
+  if (tabId === 'suivi') {
+    updateSuivi();
+  }
+
+  if (tabId === 'historique') {
+    loadHistorique();
+  }
+
+  if (tabId === 'gestion') {
+    renderGestion();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function saveConfig() {
+  // Lire les inputs cfg.pop au cas où l'utilisateur n'aurait pas encore déclenché oninput
+  const bs  = parseInt(document.getElementById('cfg-bs')?.value);
+  const tp  = parseInt(document.getElementById('cfg-tp')?.value);
+  const pop = parseInt(document.getElementById('cfg-pop')?.value);
+  const pp  = parseInt(document.getElementById('cfg-pp')?.value);
+  if (!isNaN(bs))  cfg.pop['Best sellers']   = bs;
+  if (!isNaN(tp))  cfg.pop['Très populaire'] = tp;
+  if (!isNaN(pop)) cfg.pop['Populaire']      = pop;
+  if (!isNaN(pp))  cfg.pop['Peu populaire']  = pp;
+  saveConfigData();
+  renderCarte();
+  compute();
+  toast('✓ Configuration sauvegardée');
+}
+
+function resetConfig() {
+  if (confirm('Réinitialiser la configuration ?')) {
+    cfg = structuredClone(defaultConfig);
+    saveConfigData();
+    renderCarte();
+    compute();
+    toast('Configuration réinitialisée');
+  }
+}
+
+function hardReset() {
+  if (confirm('Tout effacer ? (config + données journée)')) {
+    cfg = structuredClone(defaultConfig);
+    resteHier = {}; vendusMatin = {}; vendusFull = {};
+    compute();
+    renderCarte();
+    renderConfig();
+    saveConfigData();
+    saveState();
+    toast('Données effacées');
+  }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+
+// ============================================================
+// INIT — FIX #3 : Realtime lancé uniquement après auth réussie
+// ============================================================
+// Initialise la date à aujourd'hui si vide
+const _initDateEl = document.getElementById('sel-date');
+if (_initDateEl && !_initDateEl.value) { _initDateEl.value = getTodayString(); updateJourAffiche(); }
+
+compute();
+
+async function checkSupabaseTable() {
+    const { error } = await _supabase.from('store_state').select('id').limit(1);
+    if (error) {
+        const msg = error.code === '42P01'
+            ? '🔴 TABLE MANQUANTE\n\nExécutez ce SQL dans votre dashboard Supabase :\n\nCREATE TABLE store_state (\n  id TEXT PRIMARY KEY,\n  state_data JSONB,\n  updated_at TIMESTAMPTZ DEFAULT now()\n);\nALTER TABLE store_state ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "allow_all_authenticated" ON store_state\n  FOR ALL USING (auth.role() = \'authenticated\');'
+            : error.code === '42501'
+            ? '🔴 POLICY RLS MANQUANTE\n\nExécutez dans Supabase SQL Editor :\n\nCREATE POLICY "allow_all_authenticated" ON store_state\n  FOR ALL USING (auth.role() = \'authenticated\');'
+            : `🔴 Erreur Supabase (${error.code}) : ${error.message}`;
+        alert(msg);
+    }
+
+    const { error: errHisto } = await _supabase.from('historique').select('id').limit(1);
+    if (errHisto && errHisto.code === '42P01') {
+        alert('🔴 TABLE HISTORIQUE MANQUANTE\n\nExécutez ce SQL dans votre dashboard Supabase :\n\nCREATE TABLE historique (\n  id TEXT PRIMARY KEY,\n  date TEXT,\n  data JSONB,\n  created_at TIMESTAMPTZ DEFAULT now()\n);\nALTER TABLE historique ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "allow_all_authenticated" ON historique\n  FOR ALL USING (auth.role() = \'authenticated\');');
+    }
+}
+
+function showHeaderUser() {
+    const name = sessionStorage.getItem('userName');
+    const el   = document.getElementById('header-user');
+    const span = document.getElementById('header-username');
+    if (el && span && name) {
+        span.textContent = name;
+        el.style.display = 'flex';
+    }
+}
+
+async function initApp() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+        document.getElementById('login-screen').style.display = "none";
+        const { data: { user } } = await _supabase.auth.getUser();
+        await checkSupabaseTable();
+        await startSession(user);
+    }
+}
+// ============================================================
+// GESTION MAGASINS & UTILISATEURS
+// ============================================================
+async function renderGestion() {
+    await Promise.all([renderGestionStores(), renderGestionUsers()]);
+}
+
+async function renderGestionStores() {
+    const el = document.getElementById('gestion-stores-list');
+    if (!el) return;
+    const { data: stores } = await _supabase.from('stores').select('id, name').order('name');
+    if (!stores || stores.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;font-family:\'Space Mono\',monospace;">Aucun magasin.</div>';
+        return;
+    }
+    el.innerHTML = stores.map(s => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--surface3);gap:10px;">
+        <div>
+          <div style="font-weight:600;">${s.name}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--text-muted);">${s.id}</div>
+        </div>
+        ${s.id !== currentStoreId ? `<button class="btn btn-danger" style="padding:5px 10px;" onclick='deleteStore(${JSON.stringify(s.id)})'>Supprimer</button>` : '<span style="font-family:\'Space Mono\',monospace;font-size:10px;color:var(--accent);">ACTIF</span>'}
+      </div>`).join('');
+}
+
+async function renderGestionUsers() {
+    const el = document.getElementById('gestion-users-list');
+    if (!el) return;
+    const { data: profiles } = await _supabase.from('user_profiles').select('id, display_name, role, store_id').order('display_name');
+    const { data: stores } = await _supabase.from('stores').select('id, name').order('name');
+    if (!profiles || profiles.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:12px;font-family:\'Space Mono\',monospace;margin-bottom:8px;">Aucun utilisateur.</div>';
+        return;
+    }
+    const currentUserId = (await _supabase.auth.getUser()).data?.user?.id;
+    el.innerHTML = profiles.map(p => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--surface3);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+          <div style="font-weight:600;">${p.display_name || p.id}</div>
+          <span style="font-family:'Space Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;background:${p.role==='admin'?'var(--accent)':'var(--surface3)'};color:${p.role==='admin'?'#fff':'var(--text-muted)'};">${p.role}</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+          <select onchange='assignUserStore(${JSON.stringify(p.id)}, this.value)' style="flex:1;min-width:120px;">
+            <option value="">— Sans magasin —</option>
+            ${(stores||[]).map(s => `<option value="${s.id}" ${p.store_id===s.id?'selected':''}>${s.name}</option>`).join('')}
+          </select>
+          ${p.role !== 'admin' ? `<select onchange='setUserRole(${JSON.stringify(p.id)}, this.value)' style="width:130px;">
+            <option value="employee" ${p.role==='employee'?'selected':''}>Employé</option>
+            <option value="admin" ${p.role==='admin'?'selected':''}>Admin</option>
+          </select>` : ''}
+          ${p.id !== currentUserId ? `<button class="btn btn-danger" style="padding:5px 10px;" onclick='deleteUserAccount(${JSON.stringify(p.id)}, ${JSON.stringify(p.display_name || p.id)})'>Supprimer</button>` : '<span style="font-family:\'Space Mono\',monospace;font-size:10px;color:var(--accent);">VOUS</span>'}
+        </div>
+      </div>`).join('');
+}
+
+async function createUserAccount() {
+    const nameInput = document.getElementById('new-user-name');
+    const passInput = document.getElementById('new-user-password');
+    const roleInput = document.getElementById('new-user-role');
+    const name = nameInput?.value.trim().toLowerCase();
+    const code = passInput?.value.trim();
+    const role = roleInput?.value || 'employee';
+    if (!name) { toast('Prénom requis'); return; }
+    if (!code) { toast('Code requis'); return; }
+    const password = formatCode(code);
+    const email = name + '@wfsenart.local';
+
+    // Endpoint admin : crée le compte sans envoyer d'e-mail de confirmation
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_SERVICE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password, email_confirm: true })
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) { toast('Erreur création : ' + (json.error_description || json.msg || json.error || 'inconnue')); return; }
+    const userId = json.id ?? json.user?.id;
+    if (!userId) { toast('Erreur : identifiant utilisateur non reçu'); return; }
+
+    const displayName = name.charAt(0).toUpperCase() + name.slice(1);
+    const { error: profErr } = await _supabase.from('user_profiles').insert({ id: userId, role, display_name: displayName, store_id: null });
+    if (profErr) { toast('Compte créé mais profil échoué : ' + profErr.message); return; }
+
+    if (nameInput) nameInput.value = '';
+    if (passInput) passInput.value = '';
+    toast(`Compte « ${displayName} » créé ✓`);
+    await renderGestionUsers();
+}
+
+async function deleteUserAccount(userId, displayName) {
+    if (!confirm(`Supprimer le compte « ${displayName} » ? L'utilisateur ne pourra plus se connecter.`)) return;
+    const { error } = await _supabase.from('user_profiles').delete().eq('id', userId);
+    if (error) { toast('Erreur suppression : ' + error.message); return; }
+    toast(`Compte « ${displayName} » supprimé ✓`);
+    await renderGestionUsers();
+}
+
+async function addStore(fromGestion = false) {
+    const inputId = fromGestion ? 'gestion-new-store-name' : 'new-store-name';
+    const input = document.getElementById(inputId);
+    const name = input?.value.trim();
+    if (!name) { toast('Nom requis'); return; }
+    const id = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const { error } = await _supabase.from('stores').insert({ id, name });
+    if (error) { toast('Erreur : ' + error.message); return; }
+    if (input) input.value = '';
+    toast('Magasin créé ✓');
+    if (fromGestion) { await renderGestionStores(); } else { showStoreSelectorScreen(); }
+}
+
+async function deleteStore(storeId) {
+    if (!confirm(`Supprimer le magasin « ${storeId} » ? Cette action est irréversible.`)) return;
+    const { error } = await _supabase.from('stores').delete().eq('id', storeId);
+    if (error) { toast('Erreur : ' + error.message); return; }
+    toast('Magasin supprimé');
+    await renderGestionStores();
+}
+
+async function assignUserStore(userId, storeId) {
+    const { error } = await _supabase.from('user_profiles').update({ store_id: storeId || null }).eq('id', userId);
+    if (error) { toast('Erreur : ' + error.message); return; }
+    toast('Magasin assigné ✓');
+}
+
+async function setUserRole(userId, role) {
+    const { error } = await _supabase.from('user_profiles').update({ role }).eq('id', userId);
+    if (error) { toast('Erreur : ' + error.message); return; }
+    toast('Rôle mis à jour ✓');
+    await renderGestionUsers();
+}
+
+function injectIcons() {
+  const s = (id, svg, label) => { const el = document.getElementById(id); if (el) el.innerHTML = svg + ' ' + label; };
+  const mi = (id, svg) => { const el = document.getElementById(id); if (el) el.innerHTML = svg; };
+  mi('mi-production', IC.production);
+  mi('mi-suivi',      IC.suivi);
+  mi('mi-historique', IC.historique);
+  mi('mi-config',     IC.config);
+  mi('mi-gestion',    IC.gestion);
+  s('ct-saison',        IC.saison,  'Lunch de saison');
+  s('ct-odj',           IC.odj,     'Lunch ODJ du jour');
+  s('ct-matin',         IC.matin,   '8H30 — Production Matin');
+  s('ct-apm',           IC.apm,     '13H30 — Production Après-Midi');
+  s('ct-pertes',        IC.pertes,  'Enregistrer une Perte');
+  s('ct-bilan',         IC.suivi,   'Bilan');
+  s('ct-totaux',        IC.totaux,  'Totaux');
+  s('ct-pertes-detail', IC.pertes,  'Détail des Pertes');
+  s('ct-ventes',        IC.ventes,  'Saisie des Ventes');
+}
+injectIcons();
+
+initApp();
+</script>
+</body>
+</html>
